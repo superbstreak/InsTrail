@@ -1,7 +1,14 @@
 package nwhack.instrail.com.instrail;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -10,19 +17,43 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
+
+    private Activity context;
+    private Context appContext;
 
     private GoogleMap mMap;
+    private SupportMapFragment mapFragment;
+    private LinearLayout accountButton;
+    private LinearLayout photoButton;
+    private LinearLayout cameraButton;
+    private LinearLayout filterButton;
+    private LinearLayout trailsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        context = this;
+        appContext = this.getApplicationContext();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        accountButton = (LinearLayout) this.findViewById(R.id.main_menu_account);
+        photoButton = (LinearLayout) this.findViewById(R.id.main_menu_photo);
+        cameraButton = (LinearLayout) this.findViewById(R.id.main_menu_camera);
+        filterButton = (LinearLayout) this.findViewById(R.id.main_menu_filter);
+        trailsButton = (LinearLayout) this.findViewById(R.id.main_menu_search);
+
         mapFragment.getMapAsync(this);
+        accountButton.setOnClickListener(this);
+        photoButton.setOnClickListener(this);
+        cameraButton.setOnClickListener(this);
+        filterButton.setOnClickListener(this);
+        trailsButton.setOnClickListener(this);
     }
+
 
 
     /**
@@ -42,5 +73,31 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        if (view.equals(accountButton)) {
+            Toast.makeText(context, "account clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, Account.class);
+            startActivity(intent);
+        } else if (view.equals(photoButton)) {
+            Toast.makeText(context, "photo clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, Photos.class);
+            startActivity(intent);
+        } else if (view.equals(cameraButton)) {
+            Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, Camera.class);
+            startActivity(intent);
+        } else if (view.equals(filterButton)) {
+            Toast.makeText(context, "filter clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, Filter.class);
+            startActivity(intent);
+        } else if (view.equals(trailsButton)) {
+            Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, Trails.class);
+            startActivity(intent);
+        }
     }
 }
