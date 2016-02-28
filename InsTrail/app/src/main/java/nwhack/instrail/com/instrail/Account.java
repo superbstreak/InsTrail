@@ -107,7 +107,7 @@ public class Account extends MainActivity {
 
         @Override
         public void onCancel() {
-
+            finish();
         }
 
     };
