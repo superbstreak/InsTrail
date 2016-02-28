@@ -76,7 +76,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout cameraButton;
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
-    private static Dialog LoadingDialog;
+    private Dialog LoadingDialog;
 
     private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
     private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
@@ -198,6 +198,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             il.init(ImageLoaderConfiguration.createDefault(context));
         }
         scrapeInstagram();
+
+        if (filterPopup != null) {
+            filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    MapFilterLoader a = new MapFilterLoader();
+                    a.execute();
+                }
+            });
+        }
     }
 
 
@@ -254,11 +264,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return pos;
     }
 
-    private static class MapFilterLoader extends AsyncTask <Void,ArrayList<Trail>,ArrayList<Trail>> {
+    private class MapFilterLoader extends AsyncTask <Void,ArrayList<Trail>,ArrayList<Trail>> {
 
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
+            mMap.clear();
             ShowLoadingDialog();
         }
 
@@ -477,15 +488,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public static void ShowLoadingDialog() {
+    public void ShowLoadingDialog() {
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
         } else {
-            LoadingDialog = new Dialog(context, android.R.style.Theme_Translucent);
+            LoadingDialog = new Dialog(this, android.R.style.Theme_Translucent);
             LoadingDialog.setCancelable(false);
             LoadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             LoadingDialog.setContentView(R.layout.load_hub);
             Window window = LoadingDialog.getWindow();
-            Display display = context.getWindowManager().getDefaultDisplay();
+            Display display = this.getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
             int w = size.x;
