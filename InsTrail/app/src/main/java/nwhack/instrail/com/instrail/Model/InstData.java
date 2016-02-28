@@ -13,7 +13,7 @@ public class InstData {
     public InstData(String small, String medium, String large) {
         this.smallURL = small;
         this.mediumURL = medium;
-        this.largeURL = largeURL;
+        this.largeURL = large;
         this.isStub = true;
     }
 
