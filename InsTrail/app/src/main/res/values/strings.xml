@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">InsTrail</string>
     <string name="title_activity_main">InsTrail</string>
+    <string name="radio_nofilter">No Filter</string>
+    <string name="radio_top">Top 10</string>
+    <string name="radio_low">Low 10</string>
+    <string name="radio_mypic">My Picture</string>
 </resources>
