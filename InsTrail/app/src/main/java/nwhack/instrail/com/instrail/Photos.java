@@ -101,7 +101,6 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
             final ImageView photo = (ImageView) photoPopup.findViewById(R.id.photo_ZoomImageView);
             final ImageView close_photo = (ImageView) photoPopup.findViewById(R.id.photo_closeZoom);
 
-            Log.e("XXXXXXXXXXX", url);
             ImageRequest request = new ImageRequest(url,
                     new Response.Listener<Bitmap>() {
                         @Override
