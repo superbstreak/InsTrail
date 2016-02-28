@@ -65,6 +65,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     int ZOOM_LEVEL = 9;
 
     private static Activity context;
+    private static DataListener currentDataListener;
     private Context appContext;
     private Dialog filterPopup;
     private static int currentFilter = 0;
@@ -96,11 +97,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public static ArrayList<Trail> trails = new ArrayList<>();
 
     public static HashMap<String, Integer> trailMapper = new HashMap<>();
-    private InstagramController scrapper;
+    public static InstagramController scrapper;
     private int currentCount = 1;
     private final int MAX_CALL = 20;
     public static boolean isFirstLoad = true;
     private boolean filterResume = false;
+    public static String nextActionURL;
 
     // Singleton getters
     public Context getAppContext() {
@@ -111,8 +113,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return context;
     }
 
-    public static DataListener getMainContext() {
-        return (DataListener)context;
+    public static DataListener getCurrentDataListener() {
+        return currentDataListener;
+    }
+
+    public static void setCurrentDataListener(DataListener datalist) {
+        currentDataListener = datalist;
     }
 
 
@@ -155,7 +161,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         context = this;
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
-
+        setCurrentDataListener(this);
         scrapper = new InstagramController();
 
         il = ImageLoader.getInstance();
@@ -192,6 +198,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         context = this;
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
+        setCurrentDataListener(this);
         getVolleyController(); // place here to make sure it never dies
         if (il == null) {
             il = ImageLoader.getInstance();
@@ -358,8 +365,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onDataReceive(ArrayList<InstData> data) {
+    public void onDataReceive(ArrayList<InstData> data, String nextAction) {
 //        Log.e("asdfasdfas", scrapper.getJson().size() + "");
+        nextActionURL = nextAction;
         bulkAddMarkers(trails);
 //        Toast.makeText(getAppContext(), data.size()+" SAFE "+this.mainData.size(), Toast.LENGTH_LONG).show();
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
@@ -370,12 +378,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onDataLoading(String nextAction) {
 //        Log.e("REACHED ", currentCount+"   "+nextAction+"");
+        nextActionURL = nextAction;
         ShowLoadingDialog();
         if (nextAction != null && this.currentCount < MAX_CALL) {
             if (scrapper == null) {
                 scrapper = new InstagramController();
             }
-            boolean isLast = (this.currentCount == 9);
+            boolean isLast = (this.currentCount == MAX_CALL - 1);
             scrapper.getTagRecentMedia(nextAction, isLast);
             currentCount+=1;
         }

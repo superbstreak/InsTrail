@@ -8,7 +8,7 @@ import nwhack.instrail.com.instrail.Model.InstData;
  * Created by Rob on 2/27/2016.
  */
 public interface DataListener {
-    void onDataReceive(ArrayList<InstData> data);
+    void onDataReceive(ArrayList<InstData> data,  String nextAction);
     void onDataLoading(String nextAction);
     void onDataError();
 }

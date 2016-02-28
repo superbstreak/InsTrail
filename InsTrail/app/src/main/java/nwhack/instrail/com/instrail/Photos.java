@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -39,6 +40,7 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     private int incoming_trailPos = 0;
     private LinearLayout backButton;
     private ArrayList<InstData> data;
+    private int lastPos = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,8 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     public void onResume() {
         super.onResume();
 
+        setCurrentDataListener(this);
+
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
             data = getLocalData();
@@ -85,6 +89,25 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this);
         }
+
+//        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(AbsListView view, int scrollState) {
+//                if (scrollState == SCROLL_STATE_IDLE)  {
+//                    int pagecnt = (int)gridView.getFirstVisiblePosition() +10;
+//                    if (data != null && data.size() >= pagecnt) {
+//                        lastPos = gridView.getFirstVisiblePosition();
+//                        MainActivity.scrapper.getTagRecentMedia(MainActivity.nextActionURL, true);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+//
+//            }
+//        });
+
         context = this;
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,12 +166,20 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
 
 
     @Override
-    public void onDataReceive(ArrayList<InstData> data) {
+    public void onDataReceive(ArrayList<InstData> ddata,  String nextAction) {
+        MainActivity.nextActionURL = nextAction;
         // data receive goes here
-        setLocalData(data);
-        adapter = new PhotoAdapter(this,data);
-        gridView.setAdapter(adapter);
-        gridView.setOnItemClickListener(this);
+        if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
+            // crash prevention, defult to main data
+            setLocalData(ddata);
+            data = ddata;
+//            adapter = new PhotoAdapter(this,data);
+//            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
+//            gridView.scrollTo(0,lastPos);
+            adapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override

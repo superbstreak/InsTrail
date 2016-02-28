@@ -52,14 +52,14 @@ public class InstagramController {
                             if (nextAction != null) {
                                 if ( MainActivity.getContext() != null) {
                                     if (isLastone) {
-                                        MainActivity.getMainContext().onDataReceive(processAllJson());
+                                        MainActivity.getCurrentDataListener().onDataReceive(processAllJson(),nextAction);
                                     } else {
-                                        MainActivity.getMainContext().onDataLoading(nextAction);
+                                        MainActivity.getCurrentDataListener().onDataLoading(nextAction);
                                     }
                                 }
                             } else {
                                 if (MainActivity.getContext() != null) {
-                                    MainActivity.getMainContext().onDataError();
+                                    MainActivity.getCurrentDataListener().onDataError();
                                 }
                             }
                         }
