@@ -3,12 +3,13 @@ package nwhack.instrail.com.instrail;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
 import android.graphics.Point;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -16,17 +17,20 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import net.londatiga.android.instagram.Instagram;
-import net.londatiga.android.instagram.InstagramSession;
 
 import java.util.ArrayList;
 
@@ -51,18 +55,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
 
-    private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
-    private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
-    private static final String REDIRECT_URI = "com-instrail://instagramredirect";
-
-    protected Instagram mInstagram;
-    protected InstagramSession mInstagramSession;
-
     private static VolleyController requestController;
     private ArrayList<InstData> mainData = new ArrayList<>();
 
     // Singleton getters
-    public Context getAppContext() {
+    public Context getAppContext(){
         return this.appContext;
     }
 
@@ -85,14 +82,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return currentFilter;
     }
 
+    public static void setCurrentFilter(int select) {
+        currentFilter = select;
+    }
+
     // ========================================================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mInstagram = new Instagram(this, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
         context = this;
         appContext = this.getApplicationContext();
@@ -114,7 +113,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         trailsButton.setOnClickListener(this);
 
         String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
-        for (int i = 0; i < 999; i++) {
+        for(int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
         }
     }
@@ -127,6 +126,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         BaseController.appContext = getApplicationContext();
         getVolleyController(); // place here to make sure it never dies
     }
+
 
 
     /**
@@ -161,33 +161,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
-            // TODO: forbid user to take photos unless they are logged in
             Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
-            takePicture();
+            Intent intent = new Intent(MainActivity.this, Camera.class);
+            startActivity(intent);
         } else if (view.equals(filterButton)) {
             showFilterPopUp();
         } else if (view.equals(trailsButton)) {
             Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
-        }
-    }
-
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    private void takePicture() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//            mImageView.setImageBitmap(imageBitmap);
         }
     }
 
@@ -207,7 +189,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private void showFilterPopUp() {
+    private void showFilterPopUp () {
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.dismiss();
         }
@@ -216,6 +198,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             filterPopup.setContentView(R.layout.activity_filter);
 
             Window window = filterPopup.getWindow();
+
             Display display = context.getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
@@ -223,23 +206,57 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             int h = size.y;
             window.setLayout((int) w, (int) h);
 
-            final ListView listview = (ListView) filterPopup.findViewById(R.id.filter_listview);
-            final ImageView close_filter = (ImageView) filterPopup.findViewById(R.id.filter_close);
+            RadioGroup filterRadioButton = (RadioGroup) filterPopup.findViewById(R.id.radioFilter);
+            final RadioButton filterNoFilter = (RadioButton) filterPopup.findViewById(R.id.radioNo);
+            RadioButton filterTop = (RadioButton) filterPopup.findViewById(R.id.radioTop);
+            RadioButton filterLow = (RadioButton) filterPopup.findViewById(R.id.radioLow);
+            RadioButton filterMy = (RadioButton) filterPopup.findViewById(R.id.radioMyPic);
+            RelativeLayout outside  = (RelativeLayout) filterPopup.findViewById(R.id.filter_background);
 
             // no filter, top 10, low 10, my picture
-            final String[] filterStr = {"No Filter", "Top 10", "Low 10", "My Picture"};
-            final FilterAdapter adapter = new FilterAdapter(this, filterStr, currentFilter);
-            listview.setAdapter(adapter);
+            final int[] buttonID = new int[4];
+            buttonID[0] = filterNoFilter.getId();
+            buttonID[1] = filterTop.getId();
+            buttonID[2] = filterLow.getId();
+            buttonID[3] = filterMy.getId();
+            filterNoFilter.setChecked(false);
+            filterTop.setChecked(false);
+            filterLow.setChecked(false);
+            filterMy.setChecked(false);
 
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            switch (currentFilter) {
+                case 0:
+                    filterNoFilter.setChecked(true);
+                    break;
+                case 1:
+                    filterTop.setChecked(true);
+                    break;
+                case 2:
+                    filterLow.setChecked(true);
+                    break;
+                case 3:
+                    filterMy.setChecked(true);
+                    break;
+
+            }
+
+            filterRadioButton.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    currentFilter = position;
-                    adapter.notifyDataSetChanged();
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    if (checkedId == buttonID[0]) {
+                        setCurrentFilter(0);
+                    } else if (checkedId == buttonID[1]) {
+                        setCurrentFilter(1);
+                    } else if (checkedId == buttonID[2]){
+                        setCurrentFilter(2);
+                    } else if (checkedId == buttonID[3]){
+                        setCurrentFilter(3);
+                    }
+
                 }
             });
 
-            close_filter.setOnClickListener(new View.OnClickListener() {
+            outside.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (filterPopup != null) {

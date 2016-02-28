@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">InsTrail</string>
-    <string name="title_activity_main">Main</string>
-    <string name="google_app_id">741734204434</string>
-    <string name="text_signin">Log In</string>
-    <string name="text_signout">Log Out</string>
-
+    <string name="title_activity_main">InsTrail</string>
+    <string name="radio_nofilter">No Filter</string>
+    <string name="radio_top">Top 10</string>
+    <string name="radio_low">Low 10</string>
+    <string name="radio_mypic">My Picture</string>
 </resources>
