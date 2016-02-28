@@ -198,8 +198,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             il.init(ImageLoaderConfiguration.createDefault(context));
         }
         scrapeInstagram();
-
-        filterPopup = null;
     }
 
 
