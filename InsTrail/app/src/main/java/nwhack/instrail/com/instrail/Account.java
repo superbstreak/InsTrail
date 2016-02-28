@@ -93,6 +93,4 @@ public class Account extends MainActivity {
     private void showToast(String text) {
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
     }
-
-
 }
