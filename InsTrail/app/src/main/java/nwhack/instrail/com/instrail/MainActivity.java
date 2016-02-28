@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
@@ -85,6 +86,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected static final String ZAMA_ZINGO_ACCESS_TOKEN = "2257996576.cf0499d.08834443f30a4d278c28fcaf41af2f71";
     protected static final String ZAMA_ZINGO_USER_ID = "2257996576";
     protected static final String TAG = "vancouvertrails";
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     protected Instagram mInstagram;
     protected InstagramSession mInstagramSession;
@@ -352,8 +355,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
 //            Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, Camera.class);
-            startActivity(intent);
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
         } else if (view.equals(filterButton)) {
             filterResume = true;
             showFilterPopUp();
@@ -361,6 +366,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 //            Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//            mImageView.setImageBitmap(imageBitmap);
         }
     }
 
