@@ -1,5 +1,13 @@
 [
     {
+        "merged": "/Users/semihsezer/nwhacks2016/InsTrail/C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-xhdpi-v4\\icon.png",
+        "source": "/Users/semihsezer/nwhacks2016/InsTrail/C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\drawable-xhdpi-v4\\icon.png"
+    },
+    {
+        "merged": "/Users/semihsezer/nwhacks2016/InsTrail/C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\res\\merged\\androidTest\\debug\\drawable-xhdpi-v4\\ic_launcher.png",
+        "source": "/Users/semihsezer/nwhacks2016/InsTrail/C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\drawable-xhdpi-v4\\ic_launcher.png"
+    },
+    {
         "merged": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/res/merged/androidTest/debug/drawable-xhdpi-v4/icon.png",
         "source": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/drawable-xhdpi-v4/icon.png"
     },
