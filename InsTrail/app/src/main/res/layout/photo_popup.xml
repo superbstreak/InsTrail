@@ -42,5 +42,4 @@
         android:scaleType="fitCenter"
         android:id="@+id/photo_ZoomImageView"/>
 
-
 </LinearLayout>
