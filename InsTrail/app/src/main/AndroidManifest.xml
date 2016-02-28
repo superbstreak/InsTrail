@@ -37,6 +37,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Account" />
+        <activity android:name=".Photos" />
+        <activity android:name=".Camera" />
+        <activity android:name=".Filter" />
+        <activity android:name=".Trails"></activity>
     </application>
 
 </manifest>
