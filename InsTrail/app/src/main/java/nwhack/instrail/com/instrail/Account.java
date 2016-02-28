@@ -22,12 +22,6 @@ import net.londatiga.android.instagram.InstagramRequest;
 import net.londatiga.android.instagram.InstagramSession;
 import net.londatiga.android.instagram.InstagramUser;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;

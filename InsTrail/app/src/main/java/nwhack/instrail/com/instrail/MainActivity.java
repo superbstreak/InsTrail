@@ -1,13 +1,21 @@
 package nwhack.instrail.com.instrail;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
+import android.graphics.Point;
+import android.view.Display;
 import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,10 +25,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
+import java.util.ArrayList;
+
+import nwhack.instrail.com.instrail.Adapter.FilterAdapter;
+import nwhack.instrail.com.instrail.Controller.BaseController;
+import nwhack.instrail.com.instrail.Controller.VolleyController;
+import nwhack.instrail.com.instrail.Interface.DataListener;
+import nwhack.instrail.com.instrail.Model.InstData;
+
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
     private Activity context;
     private Context appContext;
+    private Dialog filterPopup;
+    private static int currentFilter = 0;
 
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
@@ -30,6 +48,35 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
 
+    private static VolleyController requestController;
+    private ArrayList<InstData> mainData = new ArrayList<>();
+
+    // Singleton getters
+    public Context getAppContext() {
+        return this.appContext;
+    }
+
+    public Activity getContext() {
+        return this.context;
+    }
+
+    public ArrayList<InstData> getMainData() {
+        return this.mainData;
+    }
+
+    public static VolleyController getVolleyController() {
+        if (requestController == null) {
+            requestController = new VolleyController();
+        }
+        return requestController;
+    }
+
+    public static int getCurrentFilter() {
+        return currentFilter;
+    }
+
+    // ========================================================================================
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +84,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         context = this;
         appContext = this.getApplicationContext();
+        BaseController.appContext = getApplicationContext();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -52,8 +100,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         cameraButton.setOnClickListener(this);
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
+
+        String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
+        for (int i = 0; i < 999; i++) {
+            mainData.add(new InstData(url, url, url));
+        }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        context = this;
+        appContext = this.getApplicationContext();
+        BaseController.appContext = getApplicationContext();
+        getVolleyController(); // place here to make sure it never dies
+    }
 
 
     /**
@@ -85,19 +146,97 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         } else if (view.equals(photoButton)) {
             Toast.makeText(context, "photo clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Photos.class);
+            intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
+            // TODO: forbid user to take photos unless they are logged in
             Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, Camera.class);
-            startActivity(intent);
+            takePicture();
         } else if (view.equals(filterButton)) {
-            Toast.makeText(context, "filter clicked", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, Filter.class);
-            startActivity(intent);
+            showFilterPopUp();
         } else if (view.equals(trailsButton)) {
             Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
+        }
+    }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private void takePicture() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//            mImageView.setImageBitmap(imageBitmap);
+        }
+    }
+
+    @Override
+    public void onDataReceive() {
+
+    }
+
+    @Override
+    public void onDataLoading() {
+
+    }
+
+    @Override
+    public void onDataError() {
+
+    }
+
+
+    private void showFilterPopUp() {
+        if (filterPopup != null && filterPopup.isShowing()) {
+            filterPopup.dismiss();
+        }
+        if (!this.context.isFinishing()) {
+            filterPopup = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+            filterPopup.setContentView(R.layout.activity_filter);
+
+            Window window = filterPopup.getWindow();
+            Display display = context.getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int w = size.x;
+            int h = size.y;
+            window.setLayout((int) w, (int) h);
+
+            final ListView listview = (ListView) filterPopup.findViewById(R.id.filter_listview);
+            final ImageView close_filter = (ImageView) filterPopup.findViewById(R.id.filter_close);
+
+            // no filter, top 10, low 10, my picture
+            final String[] filterStr = {"No Filter", "Top 10", "Low 10", "My Picture"};
+            final FilterAdapter adapter = new FilterAdapter(this, filterStr, currentFilter);
+            listview.setAdapter(adapter);
+
+            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    currentFilter = position;
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
+            close_filter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (filterPopup != null) {
+                        filterPopup.dismiss();
+                    }
+                }
+            });
+
+            filterPopup.show();
         }
     }
 }
