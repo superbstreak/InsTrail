@@ -16,6 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,6 +36,8 @@ import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.InstData;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
+
+    int ZOOM_LEVEL = 9;
 
     private Activity context;
     private Context appContext;
@@ -156,9 +159,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng vancouver = new LatLng(49.485079, -122.985231);
+        mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
+
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(ZOOM_LEVEL));
     }
 
     @Override
