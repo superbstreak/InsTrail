@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -25,6 +28,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -37,6 +42,10 @@ import net.londatiga.android.instagram.InstagramSession;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -85,7 +94,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public static HashMap<String, Integer> trailMapper = new HashMap<>();
     private InstagramController scrapper;
     private int currentCount = 1;
+    private final int MAX_CALL = 20;
     public static boolean isFirstLoad = true;
+    private boolean filterResume = false;
 
     // Singleton getters
     public Context getAppContext() {
@@ -183,6 +194,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             il.init(ImageLoaderConfiguration.createDefault(context));
         }
         scrapeInstagram();
+        if (filterResume){
+
+        }
     }
 
 
@@ -201,7 +215,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
         LatLng vancouver = new LatLng(49.485079, -122.985231);
-        mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
+//        mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(ZOOM_LEVEL));
@@ -239,20 +253,44 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return pos;
     }
 
+    private class MapFilterLoader extends AsyncTask <Void,Void,Void> {
+
+        @Override
+        protected void onPreExecute(){
+            super.onPreExecute();
+            mMap.clear();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected  void onPostExecute(Void v) {
+            super.onPostExecute(v);
+
+        }
+    }
+
     public static void bulkAddMarkers() {
         if (trails != null) {
             int size = trails.size();
             for (int i = 0; i < size; i++) {
                 Trail trail = trails.get(i);
-                addMarkers(trail.getName(), trail.getLat(), trail.getLon());
+                String thumb = trail.getThumbnail();
+                addMarkers(trail.getName(), trail.getLat(), trail.getLon(), thumb);
             }
         }
     }
 
-    public static void addMarkers(String name, double lat, double lon) {
+    public static void addMarkers(String name, double lat, double lon, String thumb) {
         if (mMap != null) {
             LatLng trail = new LatLng(lat, lon);
-            mMap.addMarker(new MarkerOptions().position(trail).title(name));
+            MarkerOptions marker = new MarkerOptions().position(trail).title(name);
+            BitmapDescriptor bit = BitmapDescriptorFactory.fromResource(R.drawable.hiking2);
+            marker.icon(bit);
+            mMap.addMarker(marker);
         }
     }
 
@@ -296,7 +334,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     public void onDataLoading(String nextAction) {
 //        Log.e("REACHED ", currentCount+"   "+nextAction+"");
         ShowLoadingDialog();
-        if (nextAction != null && this.currentCount < 10) {
+        if (nextAction != null && this.currentCount < MAX_CALL) {
             if (scrapper == null) {
                 scrapper = new InstagramController();
             }
@@ -389,6 +427,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
             filterPopup.show();
+            filterResume = true;
         }
     }
 

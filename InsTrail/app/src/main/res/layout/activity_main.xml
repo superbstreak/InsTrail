@@ -60,79 +60,129 @@ tools:context=".MainActivity">
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:id="@+id/main_menu_account"
             android:clickable="true"
             android:layout_weight="0.2">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.65"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_account"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.35"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Account"/>
 
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:clickable="true"
             android:id="@+id/main_menu_photo"
             android:layout_weight="0.2">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.65"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_photo"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.35"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Photos"/>
 
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:clickable="true"
             android:id="@+id/main_menu_camera"
             android:layout_weight="0.2">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
+                android:layout_height="0dp"
+                android:scaleType="centerInside"
+                android:layout_weight="0.65"
                 android:src="@drawable/ic_camera"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.35"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Camera"/>
 
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:id="@+id/main_menu_filter"
             android:clickable="true"
             android:layout_weight="0.2">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.65"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_filter"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.35"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Filters"/>
 
         </LinearLayout>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:id="@+id/main_menu_search"
             android:clickable="true"
             android:layout_weight="0.2">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.65"
+                android:scaleType="centerInside"
                 android:src="@drawable/ic_search"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.35"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:gravity="center"
+                android:text="Trails"/>
 
 
         </LinearLayout>
