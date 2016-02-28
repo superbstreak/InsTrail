@@ -29,6 +29,7 @@ public class PhotoAdapter extends BaseAdapter {
     private ArrayList<InstData> data;
 
     public PhotoAdapter (Activity context, ArrayList<InstData> img) {
+        Log.e("ADFASFa", ""+img.size());
         this.mContext = context;
         this.data = img;
     }
@@ -64,7 +65,7 @@ public class PhotoAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        String url = data.get(position).getMediumURL();
+        String url = data.get(position).getMediumURL()+"";
             ImageRequest request = new ImageRequest(url,
                     new Response.Listener<Bitmap>() {
                         @Override

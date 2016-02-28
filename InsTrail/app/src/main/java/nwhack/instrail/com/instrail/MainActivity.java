@@ -40,8 +40,11 @@ import nwhack.instrail.com.instrail.Controller.BaseController;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.InstData;
+import nwhack.instrail.com.instrail.Model.Trail;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
+
+    int ZOOM_LEVEL = 9;
 
     private Activity context;
     private Context appContext;
@@ -70,6 +73,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static VolleyController requestController;
     private ArrayList<InstData> mainData = new ArrayList<>();
+    private ArrayList<InstData> localData = new ArrayList<>();
+    private ArrayList<Trail> trails = new ArrayList<>();
 
     // Singleton getters
     public Context getAppContext() {
@@ -97,6 +102,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static void setCurrentFilter(int select) {
         currentFilter = select;
+    }
+
+    public ArrayList<Trail> getTrails() {
+        return this.trails;
+    }
+
+    public void setLocalData(ArrayList<InstData> data) {
+        this.localData = data;
+    }
+
+    public ArrayList<InstData> getLocalData() {
+        return this.localData;
     }
 
     // ========================================================================================
@@ -130,6 +147,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
         for (int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
+            ArrayList<InstData> test = new ArrayList<>();
+            test.add(new InstData(url, url, url));
+            test.add(new InstData(url, url, url));
+            test.add(new InstData(url, url, url));
+            trails.add(new Trail("Vanouver Trail", test, url));
         }
 
         scrapeInstagram();
@@ -151,7 +173,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     public void onResponse(JSONObject response) {
 
                         Log.d("INSTAGRAM DATA", response.toString());
-
 
 
                     }
@@ -189,9 +210,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng vancouver = new LatLng(49.485079, -122.985231);
+        mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
+
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(ZOOM_LEVEL));
     }
 
     @Override
@@ -220,7 +243,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onDataReceive() {
+    public void onDataReceive(ArrayList<InstData> data) {
 
     }
 
