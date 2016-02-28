@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/InsTrail.iml" filepath="$PROJECT_DIR$/InsTrail.iml" />
+      <module fileurl="file://$PROJECT_DIR$/InstagramAndroid/InstagramAndroid.iml" filepath="$PROJECT_DIR$/InstagramAndroid/InstagramAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

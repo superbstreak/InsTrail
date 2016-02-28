@@ -3,13 +3,12 @@ package nwhack.instrail.com.instrail;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
+import android.graphics.Point;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -22,9 +21,6 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -59,7 +55,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private ArrayList<InstData> mainData = new ArrayList<>();
 
     // Singleton getters
-    public Context getAppContext(){
+    public Context getAppContext() {
         return this.appContext;
     }
 
@@ -113,7 +109,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         trailsButton.setOnClickListener(this);
 
         String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
-        for(int i = 0; i < 999; i++) {
+        for (int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
         }
     }
@@ -126,7 +122,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         BaseController.appContext = getApplicationContext();
         getVolleyController(); // place here to make sure it never dies
     }
-
 
 
     /**
@@ -161,15 +156,33 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
+            // TODO: forbid user to take photos unless they are logged in
             Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MainActivity.this, Camera.class);
-            startActivity(intent);
+            takePicture();
         } else if (view.equals(filterButton)) {
             showFilterPopUp();
         } else if (view.equals(trailsButton)) {
             Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
+        }
+    }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    private void takePicture() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//            mImageView.setImageBitmap(imageBitmap);
         }
     }
 
@@ -189,7 +202,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private void showFilterPopUp () {
+    private void showFilterPopUp() {
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.dismiss();
         }

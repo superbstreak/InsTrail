@@ -22,8 +22,8 @@ public class Splash extends Activity {
 
             @Override
             public void onFinish() {
-                Splash.this.finishActivity(0);
                 startActivity(i);
+                finish();
             }
         }.start();
 
