@@ -1,1 +1,1 @@
-include ':InstagramAndroid'
+include ':InstagramAndroid', ':app'

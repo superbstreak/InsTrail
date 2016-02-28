@@ -1,8 +1,6 @@
 package nwhack.instrail.com.instrail.Adapter;
 
 import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -22,16 +20,12 @@ import nwhack.instrail.com.instrail.R;
  */
 public class FilterAdapter extends BaseAdapter{
 
-    private FilterAdapter adapter;
     private Activity mContext;
     private String[] data;
-    private int selection;
 
     public FilterAdapter(Activity context, String[] data, int currentFilter) {
-        this.adapter = this;
         this.data = data;
         this.mContext = context;
-        this.selection = currentFilter;
     }
 
     @Override
@@ -53,7 +47,7 @@ public class FilterAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         View view = convertView;
         if (view == null) {
@@ -61,25 +55,17 @@ public class FilterAdapter extends BaseAdapter{
             holder = new ViewHolder();
             holder.label = (TextView) view.findViewById(R.id.filter_item_label);
             holder.button = (RadioButton) view.findViewById(R.id.filter_radio);
-            holder.pos = position;
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
         }
 
-        if (selection == MainActivity.getCurrentFilter()) {
+        if (position == MainActivity.getCurrentFilter()) {
             holder.button.setChecked(true);
         } else {
             holder.button.setChecked(false);
         }
         holder.label.setText(this.data[position]);
-
-        holder.button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity.setCurrentFilter(holder.pos);
-            }
-        });
 
         return view;
     }
@@ -88,6 +74,5 @@ public class FilterAdapter extends BaseAdapter{
     class ViewHolder {
         TextView label;
         RadioButton button;
-        int pos = 0;
     }
 }
