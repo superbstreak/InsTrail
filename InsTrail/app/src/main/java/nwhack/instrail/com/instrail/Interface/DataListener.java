@@ -9,6 +9,6 @@ import nwhack.instrail.com.instrail.Model.InstData;
  */
 public interface DataListener {
     void onDataReceive(ArrayList<InstData> data);
-    void onDataLoading();
+    void onDataLoading(String nextAction);
     void onDataError();
 }

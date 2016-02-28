@@ -9,6 +9,6 @@
         android:layout_height="fill_parent"
         android:adjustViewBounds="true"
         android:contentDescription="desc"
-        android:scaleType="centerCrop" />
+        android:scaleType="fitXY" />
 
 </FrameLayout>

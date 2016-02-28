@@ -13,6 +13,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -27,10 +32,20 @@ public class PhotoAdapter extends BaseAdapter {
 
     private Activity mContext;
     private ArrayList<InstData> data;
+    private static DisplayImageOptions options=new DisplayImageOptions.Builder()
+            .showImageOnLoading(R.mipmap.trail_stub)
+            .showImageForEmptyUri(R.drawable.ic_launcher)
+//												.showImageOnFail(R.drawable.ic_launcher)
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .considerExifParams(true)
+            .bitmapConfig(Bitmap.Config.RGB_565)
+            .build();
+    private ImageLoader il;
 
-    public PhotoAdapter (Activity context, ArrayList<InstData> img) {
-        Log.e("ADFASFa", ""+img.size());
+    public PhotoAdapter (Activity context, ArrayList<InstData> img){
         this.mContext = context;
+        this.il = MainActivity.il;
         this.data = img;
     }
 
@@ -65,21 +80,25 @@ public class PhotoAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        String url = data.get(position).getMediumURL()+"";
-            ImageRequest request = new ImageRequest(url,
-                    new Response.Listener<Bitmap>() {
-                        @Override
-                        public void onResponse(Bitmap bitmap) {
-                            holder.imageView.setImageBitmap(bitmap);
-                        }
-                    }, 0, 0, null,
-                    new Response.ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            holder.imageView.setImageResource(R.drawable.ic_photo);
-                        }
-                    });
+        il.displayImage(data.get(position).getMediumURL(), holder.imageView, options,new SimpleImageLoadingListener()
+                {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                    }
 
-            MainActivity.getVolleyController().addToRequestQueue(request);
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    }
+                },
+                new ImageLoadingProgressListener() {
+                    @Override
+                    public void onProgressUpdate(String imageUri, View view, int current, int total) {
+                    }
+                });
         return view;
     }
 

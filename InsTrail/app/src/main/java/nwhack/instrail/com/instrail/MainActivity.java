@@ -26,7 +26,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import net.londatiga.android.instagram.Instagram;
 import net.londatiga.android.instagram.InstagramRequest;
@@ -35,8 +38,10 @@ import net.londatiga.android.instagram.InstagramSession;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import nwhack.instrail.com.instrail.Controller.BaseController;
+import nwhack.instrail.com.instrail.Controller.InstagramController;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.InstData;
@@ -46,18 +51,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     int ZOOM_LEVEL = 9;
 
-    private Activity context;
+    private static Activity context;
     private Context appContext;
     private Dialog filterPopup;
     private static int currentFilter = 0;
 
-    private GoogleMap mMap;
+    private static GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private LinearLayout accountButton;
     private LinearLayout photoButton;
     private LinearLayout cameraButton;
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
+    private Dialog LoadingDialog;
 
     private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
     private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
@@ -66,28 +72,34 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected static final String ZAMA_ZINGO_USER_ID = "2257996576";
     protected static final String TAG = "vancouvertrails";
 
-
     protected Instagram mInstagram;
     protected InstagramSession mInstagramSession;
     protected InstagramRequest instagramRequest;
 
+    public static ImageLoader il;
     private static VolleyController requestController;
-    private ArrayList<InstData> mainData = new ArrayList<>();
+    public static ArrayList<InstData> mainData = new ArrayList<>();
     private ArrayList<InstData> localData = new ArrayList<>();
-    private ArrayList<Trail> trails = new ArrayList<>();
+    public static ArrayList<Trail> trails = new ArrayList<>();
+
+    public static HashMap<String, Integer> trailMapper = new HashMap<>();
+    private InstagramController scrapper;
+    private int currentCount = 1;
+    public static boolean isFirstLoad = true;
 
     // Singleton getters
     public Context getAppContext() {
         return this.appContext;
     }
 
-    public Activity getContext() {
-        return this.context;
+    public static Activity getContext() {
+        return context;
     }
 
-    public ArrayList<InstData> getMainData() {
-        return this.mainData;
+    public static DataListener getMainContext() {
+        return (DataListener)context;
     }
+
 
     public static VolleyController getVolleyController() {
         if (requestController == null) {
@@ -129,6 +141,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
 
+        scrapper = new InstagramController();
+
+        il = ImageLoader.getInstance();
+        il.init(ImageLoaderConfiguration.createDefault(context));
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         accountButton = (LinearLayout) this.findViewById(R.id.main_menu_account);
@@ -143,46 +160,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         cameraButton.setOnClickListener(this);
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
-
-        String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
-        for (int i = 0; i < 999; i++) {
-            mainData.add(new InstData(url, url, url));
-            ArrayList<InstData> test = new ArrayList<>();
-            test.add(new InstData(url, url, url));
-            test.add(new InstData(url, url, url));
-            test.add(new InstData(url, url, url));
-            trails.add(new Trail("Vanouver Trail", test, url));
-        }
-
-        scrapeInstagram();
     }
 
     public void scrapeInstagram() {
-        //TODO
-        String method = "GET";
-
-        String API_BASE_URL = "https://api.instagram.com/v1";
-        String endpoint = "/tags/" + TAG + "/media/recent";
-
-        String url = "https://api.instagram.com/v1/tags/vancouvertrails/media/recent?access_token=" + ZAMA_ZINGO_ACCESS_TOKEN;
-
-        // Request a string response from the provided URL.
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        Log.d("INSTAGRAM DATA", response.toString());
-
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("ERROR", error.toString());
-            }
-        });
-        this.getVolleyController().addToRequestQueue(stringRequest);
+        if (isFirstLoad) {
+            String url = "https://api.instagram.com/v1/tags/" + TAG + "/media/recent?access_token=" + ZAMA_ZINGO_ACCESS_TOKEN;
+            scrapper.getTagRecentMedia(url, false);
+            isFirstLoad = false;
+        }
     }
 
 
@@ -193,6 +178,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
         getVolleyController(); // place here to make sure it never dies
+        if (il == null) {
+            il = ImageLoader.getInstance();
+            il.init(ImageLoaderConfiguration.createDefault(context));
+        }
+        scrapeInstagram();
     }
 
 
@@ -215,28 +205,78 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(ZOOM_LEVEL));
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                String name = marker.getTitle();
+                int pos = 0;
+                try {   // shortcut
+                    if (trailMapper.containsKey(name)) {
+                        pos = trailMapper.get(name);
+                    } else {
+                        searchPos(name);
+                    }
+                } catch (Exception e) {
+                    searchPos(name);
+                }
+                Intent intent = new Intent(context, Photos.class);
+                intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_TRAIL);
+                intent.putExtra(Constant.TRAIL_POSITION_TAG, pos);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private int searchPos (String name) {
+        int pos = 0;
+        int size = trails.size();
+        for (int i = 0; i < size; i++) {
+            if(trails.get(i).getName().equals(name+"")) {
+                pos = i;
+                break;
+            }
+        }
+        return pos;
+    }
+
+    public static void bulkAddMarkers() {
+        if (trails != null) {
+            int size = trails.size();
+            for (int i = 0; i < size; i++) {
+                Trail trail = trails.get(i);
+                addMarkers(trail.getName(), trail.getLat(), trail.getLon());
+            }
+        }
+    }
+
+    public static void addMarkers(String name, double lat, double lon) {
+        if (mMap != null) {
+            LatLng trail = new LatLng(lat, lon);
+            mMap.addMarker(new MarkerOptions().position(trail).title(name));
+        }
     }
 
     @Override
     public void onClick(View view) {
 
         if (view.equals(accountButton)) {
-            Toast.makeText(context, "account clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "account clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Account.class);
             startActivity(intent);
+//            isFirstLoad = true;
         } else if (view.equals(photoButton)) {
-            Toast.makeText(context, "photo clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "photo clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Photos.class);
             intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
-            Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Camera.class);
             startActivity(intent);
         } else if (view.equals(filterButton)) {
             showFilterPopUp();
         } else if (view.equals(trailsButton)) {
-            Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
         }
@@ -244,17 +284,31 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onDataReceive(ArrayList<InstData> data) {
-
+//        Log.e("asdfasdfas", scrapper.getJson().size() + "");
+        bulkAddMarkers();
+//        Toast.makeText(getAppContext(), data.size()+" SAFE "+this.mainData.size(), Toast.LENGTH_LONG).show();
+        if (LoadingDialog != null && LoadingDialog.isShowing()) {
+            LoadingDialog.dismiss();
+        }
     }
 
     @Override
-    public void onDataLoading() {
-
+    public void onDataLoading(String nextAction) {
+//        Log.e("REACHED ", currentCount+"   "+nextAction+"");
+        ShowLoadingDialog();
+        if (nextAction != null && this.currentCount < 10) {
+            if (scrapper == null) {
+                scrapper = new InstagramController();
+            }
+            boolean isLast = (this.currentCount == 9);
+            scrapper.getTagRecentMedia(nextAction, isLast);
+            currentCount+=1;
+        }
     }
 
     @Override
     public void onDataError() {
-
+        currentCount+=1;
     }
 
 
@@ -335,6 +389,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
             filterPopup.show();
+        }
+    }
+
+
+    private void ShowLoadingDialog() {
+        if (LoadingDialog != null && LoadingDialog.isShowing()) {
+        } else {
+            LoadingDialog = new Dialog(this, android.R.style.Theme_Translucent);
+            LoadingDialog.setCancelable(false);
+            LoadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            LoadingDialog.setContentView(R.layout.load_hub);
+            Window window = LoadingDialog.getWindow();
+            Display display = this.getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int w = size.x;
+            window.setLayout((int) (w * 0.30), (int) (w * 0.30));
+            LoadingDialog.show();
         }
     }
 }

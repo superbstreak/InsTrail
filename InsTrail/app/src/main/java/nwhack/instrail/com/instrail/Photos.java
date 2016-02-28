@@ -55,7 +55,7 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
 
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
-            setLocalData(getMainData());
+            setLocalData(MainActivity.mainData);
         } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
             // search specified data
             try {
@@ -76,7 +76,7 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
             data = getLocalData();
-            adapter = new PhotoAdapter(this, data);
+            adapter = new PhotoAdapter(this, getLocalData());
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this);
         } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
@@ -152,7 +152,7 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     }
 
     @Override
-    public void onDataLoading() {
+    public void onDataLoading(String nextAction) {
         // SHOULD NEVER REACH HERER, SOMETHING WENT WRONG IF IT DID, LOG IT
         Log.d("PHOTO","on data loading received.");
     }
