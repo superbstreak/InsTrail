@@ -43,7 +43,6 @@ public class Account extends MainActivity {
             if (mInstagramSession.isActive()) {
                 setContentView(R.layout.activity_user);
 
-                showToast("Already Logged in!");
                 InstagramUser instagramUser = mInstagramSession.getUser();
 
                 mLoadingPb = (ProgressBar) findViewById(R.id.pb_loading);
@@ -60,21 +59,21 @@ public class Account extends MainActivity {
 
                         startActivity(new Intent(Account.this, Account.class));
 
-
                         finish();
                     }
                 });
 
             } else {
                 setContentView(R.layout.activity_account);
-
                 ((Button) findViewById(R.id.btn_connect)).setOnClickListener(new View.OnClickListener() {
+
                     @Override
                     public void onClick(View arg0) {
                         //mInstagram.authorize(mAuthListener);
                     }
                 });
             }
+
         }
 
         @Override
@@ -84,13 +83,14 @@ public class Account extends MainActivity {
 
         @Override
         public void onCancel() {
-
+            showToast("OK. Maybe later?");
         }
 
     };
 
 
     private void showToast(String text) {
-        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 }
+
