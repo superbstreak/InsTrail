@@ -54,6 +54,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String REDIRECT_URI = "com-instrail://instagramredirect";
     protected static final String ZAMA_ZINGO_ACCESS_TOKEN = "2257996576.cf0499d.08834443f30a4d278c28fcaf41af2f71";
     protected static final String ZAMA_ZINGO_USER_ID = "2257996576";
+    protected static final String TAG = "vancouvertrails";
+
 
     protected Instagram mInstagram;
     protected InstagramSession mInstagramSession;
@@ -128,8 +130,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void scrapeInstagram() {
         //TODO
+        String method = "GET";
+        String endpoint = "/tags/" + TAG + "/media/recent";
+
         instagramRequest = new InstagramRequest();
-        //createRequest(String method, String endpoint, List < NameValuePair > params)
+//        instagramRequest.createRequest(method, endpoint, new ArrayList<org.apache.http.NameValuePair>());
     }
 
     @Override
