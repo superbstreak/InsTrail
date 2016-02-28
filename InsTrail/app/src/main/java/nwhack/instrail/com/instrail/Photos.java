@@ -36,9 +36,9 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     private TextView noPtotoText;
     private PhotoAdapter adapter;
     private String incoming_tag = null;
+    private int incoming_trailPos = 0;
     private LinearLayout backButton;
-
-    private ArrayList<InstData> localData = new ArrayList<>();
+    private ArrayList<InstData> data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,7 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
         setContentView(R.layout.activity_photos);
         Intent intent = getIntent();
         incoming_tag = null;
+
         try {
             incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
         } catch (Exception e) {
@@ -54,9 +55,13 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
 
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
-            this.localData = getMainData();
-        } else {
+            setLocalData(getMainData());
+        } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
             // search specified data
+            try {
+                incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
+                incoming_trailPos = intent.getIntExtra(Constant.TRAIL_POSITION_TAG, 0);
+            } catch (Exception e) {}
         }
 
         noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
@@ -67,9 +72,16 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     @Override
     public void onResume() {
         super.onResume();
+
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
-            adapter = new PhotoAdapter(this,this.localData);
+            data = getLocalData();
+            adapter = new PhotoAdapter(this, data);
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
+        } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
+            data =  getTrails().get(incoming_trailPos).getData();
+            adapter = new PhotoAdapter(this,data);
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this);
         }
@@ -131,9 +143,10 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
 
 
     @Override
-    public void onDataReceive() {
+    public void onDataReceive(ArrayList<InstData> data) {
         // data receive goes here
-        adapter = new PhotoAdapter(this,this.localData);
+        setLocalData(data);
+        adapter = new PhotoAdapter(this,data);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(this);
     }
@@ -152,6 +165,6 @@ public class Photos extends MainActivity implements DataListener, AdapterView.On
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         // perfrom popup
-        showPhotoPopUp(this.localData.get(position).getMediumURL());
+        showPhotoPopUp(data.get(position).getLargeURL());
     }
 }

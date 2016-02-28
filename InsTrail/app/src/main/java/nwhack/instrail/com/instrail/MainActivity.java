@@ -39,6 +39,7 @@ import nwhack.instrail.com.instrail.Controller.BaseController;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.InstData;
+import nwhack.instrail.com.instrail.Model.Trail;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
@@ -57,6 +58,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static VolleyController requestController;
     private ArrayList<InstData> mainData = new ArrayList<>();
+    private ArrayList<InstData> localData = new ArrayList<>();
+    private ArrayList<Trail> trails = new ArrayList<>();
 
     // Singleton getters
     public Context getAppContext(){
@@ -86,6 +89,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         currentFilter = select;
     }
 
+    public ArrayList<Trail> getTrails(){
+        return this.trails;
+    }
+
+    public void setLocalData(ArrayList<InstData> data){
+        this.localData = data;
+    }
+
+    public ArrayList<InstData> getLocalData(){
+        return this.localData;
+    }
+
     // ========================================================================================
 
     @Override
@@ -113,8 +128,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         trailsButton.setOnClickListener(this);
 
         String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
+
         for(int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
+            ArrayList<InstData> test = new ArrayList<>();
+            test.add(new InstData(url, url, url));
+            test.add(new InstData(url, url, url));
+            test.add(new InstData(url, url, url));
+            trails.add(new Trail("Vanouver Trail", test, url));
         }
     }
 
@@ -174,7 +195,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onDataReceive() {
+    public void onDataReceive(ArrayList<InstData> data) {
 
     }
 
