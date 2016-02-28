@@ -17,7 +17,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
+import java.util.ArrayList;
+
+import nwhack.instrail.com.instrail.Controller.BaseController;
+import nwhack.instrail.com.instrail.Controller.VolleyController;
+import nwhack.instrail.com.instrail.Interface.DataListener;
+import nwhack.instrail.com.instrail.Model.InstData;
+
+public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
     private Activity context;
     private Context appContext;
@@ -30,6 +37,31 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
 
+    private static VolleyController requestController;
+    private ArrayList<InstData> mainData = new ArrayList<>();
+
+    // Singleton getters
+    public Context getAppContext(){
+        return this.appContext;
+    }
+
+    public Activity getContext() {
+        return this.context;
+    }
+
+    public ArrayList<InstData> getMainData() {
+        return this.mainData;
+    }
+
+    public static VolleyController getVolleyController() {
+        if (requestController == null) {
+            requestController = new VolleyController();
+        }
+        return requestController;
+    }
+
+    // ========================================================================================
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +69,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         context = this;
         appContext = this.getApplicationContext();
+        BaseController.appContext = getApplicationContext();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -52,6 +85,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         cameraButton.setOnClickListener(this);
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
+
+        String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
+        for(int i = 0; i < 999; i++) {
+            mainData.add(new InstData(url, url, url));
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        context = this;
+        appContext = this.getApplicationContext();
+        BaseController.appContext = getApplicationContext();
+        getVolleyController(); // place here to make sure it never dies
     }
 
 
@@ -85,6 +132,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         } else if (view.equals(photoButton)) {
             Toast.makeText(context, "photo clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, Photos.class);
+            intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
             Toast.makeText(context, "camera clicked", Toast.LENGTH_SHORT).show();
@@ -99,5 +147,20 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onDataReceive() {
+
+    }
+
+    @Override
+    public void onDataLoading() {
+
+    }
+
+    @Override
+    public void onDataError() {
+
     }
 }
