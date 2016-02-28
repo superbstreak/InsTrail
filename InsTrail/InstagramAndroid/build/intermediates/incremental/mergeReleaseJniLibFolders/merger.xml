@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/src/main/jniLibs"/></dataSet><dataSet config="release"><source path="/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/src/release/jniLibs"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="C:\Users\Borislav\Documents\Repositories\nwHacks2016\InsTrail\InstagramAndroid\src\main\jniLibs"/></dataSet><dataSet config="release"><source path="C:\Users\Borislav\Documents\Repositories\nwHacks2016\InsTrail\InstagramAndroid\src\release\jniLibs"/></dataSet></merger>

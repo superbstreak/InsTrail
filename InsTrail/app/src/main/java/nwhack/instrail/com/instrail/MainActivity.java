@@ -5,10 +5,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
-import android.graphics.Point;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -24,6 +24,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import net.londatiga.android.instagram.Instagram;
+import net.londatiga.android.instagram.InstagramRequest;
+import net.londatiga.android.instagram.InstagramSession;
 
 import java.util.ArrayList;
 
@@ -47,6 +51,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout cameraButton;
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
+
+    private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
+    private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
+    private static final String REDIRECT_URI = "com-instrail://instagramredirect";
+    protected static final String ZAMA_ZINGO_ACCESS_TOKEN = "2257996576.cf0499d.08834443f30a4d278c28fcaf41af2f71";
+
+    protected Instagram mInstagram;
+    protected InstagramSession mInstagramSession;
+    protected InstagramRequest instagramRequest;
 
     private static VolleyController requestController;
     private ArrayList<InstData> mainData = new ArrayList<>();
@@ -82,6 +95,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mInstagram = new Instagram(this, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
         context = this;
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
@@ -105,6 +120,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
         }
+
+        scrapeInstagram();
+    }
+
+    public void scrapeInstagram() {
+        //TODO
+        instagramRequest = new InstagramRequest();
+        //createRequest(String method, String endpoint, List < NameValuePair > params)
     }
 
     @Override
