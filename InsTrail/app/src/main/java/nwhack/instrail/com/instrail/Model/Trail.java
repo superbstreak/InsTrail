@@ -3,17 +3,22 @@ package nwhack.instrail.com.instrail.Model;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by Rob on 2/28/2016.
  */
-public class Trail {
+public class Trail implements Comparator<Trail> {
 
     private String name;
     private ArrayList<InstData> data;
     private String thumbnail;
     private double lat;
     private double lon;
+
+    public Trail () {
+
+    }
 
     public Trail(String name, ArrayList<InstData> d, String thumbnail, double lat, double lon) {
         this.name = name;
@@ -70,4 +75,21 @@ public class Trail {
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+    @Override
+    public int compare(Trail lhs, Trail rhs) {
+        if (lhs.getData().size() > rhs.getData().size()) {
+            return -1;
+        } else if (lhs.getData().size() < rhs.getData().size()) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return false;
+    }
+
 }

@@ -3,6 +3,7 @@ package nwhack.instrail.com.instrail;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,9 +45,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import nwhack.instrail.com.instrail.Controller.BaseController;
@@ -72,7 +76,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout cameraButton;
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
-    private Dialog LoadingDialog;
+    private static Dialog LoadingDialog;
 
     private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
     private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
@@ -194,9 +198,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             il.init(ImageLoaderConfiguration.createDefault(context));
         }
         scrapeInstagram();
-        if (filterResume){
 
-        }
+        filterPopup = null;
     }
 
 
@@ -253,31 +256,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         return pos;
     }
 
-    private class MapFilterLoader extends AsyncTask <Void,Void,Void> {
+    private static class MapFilterLoader extends AsyncTask <Void,ArrayList<Trail>,ArrayList<Trail>> {
 
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
-            mMap.clear();
+            ShowLoadingDialog();
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            return null;
+        protected ArrayList<Trail> doInBackground(Void... params) {
+            ArrayList<Trail> res = new ArrayList<Trail>();
+            ArrayList<Trail> data = new ArrayList<Trail>();
+            res.addAll(trails);
+            int size = trails.size();
+            if (currentFilter == 1 || currentFilter == 2) {
+                Collections.sort(res, new Trail());
+                for (int i = 0; i < 10; i++) {
+                    if (currentFilter == 1) {
+                        data.add(res.get(i));
+                    } else if (currentFilter == 2){
+                        data.add(res.get(size-1-i));
+                    }
+                }
+            } else if (currentFilter == 0) {
+                return trails;
+            } else if (currentFilter == 3) {
+                return trails;
+            }
+
+            return data;
         }
 
         @Override
-        protected  void onPostExecute(Void v) {
-            super.onPostExecute(v);
-
+        protected  void onPostExecute(ArrayList<Trail> result) {
+            super.onPostExecute(result);
+            if (result != null) {
+                bulkAddMarkers(result);
+            }
+            if (LoadingDialog != null && LoadingDialog.isShowing()) {
+                LoadingDialog.dismiss();
+            }
         }
     }
 
-    public static void bulkAddMarkers() {
-        if (trails != null) {
-            int size = trails.size();
+    public static void bulkAddMarkers(ArrayList<Trail> trailsx) {
+        if (trailsx != null) {
+            int size = trailsx.size();
             for (int i = 0; i < size; i++) {
-                Trail trail = trails.get(i);
+                Trail trail = trailsx.get(i);
                 String thumb = trail.getThumbnail();
                 addMarkers(trail.getName(), trail.getLat(), trail.getLon(), thumb);
             }
@@ -312,6 +339,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             Intent intent = new Intent(MainActivity.this, Camera.class);
             startActivity(intent);
         } else if (view.equals(filterButton)) {
+            filterResume = true;
             showFilterPopUp();
         } else if (view.equals(trailsButton)) {
 //            Toast.makeText(context, "trail clicked", Toast.LENGTH_SHORT).show();
@@ -323,7 +351,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onDataReceive(ArrayList<InstData> data) {
 //        Log.e("asdfasdfas", scrapper.getJson().size() + "");
-        bulkAddMarkers();
+        bulkAddMarkers(trails);
 //        Toast.makeText(getAppContext(), data.size()+" SAFE "+this.mainData.size(), Toast.LENGTH_LONG).show();
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
             LoadingDialog.dismiss();
@@ -352,7 +380,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void showFilterPopUp() {
         if (filterPopup != null && filterPopup.isShowing()) {
+            filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+//                    Log.e("ASDF", "ADFGADS");
+                    MapFilterLoader a = new MapFilterLoader();
+                    a.execute();
+                }
+            });
             filterPopup.dismiss();
+
         }
         if (!this.context.isFinishing()) {
             filterPopup = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
@@ -427,20 +464,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
             filterPopup.show();
+
+            filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+//                    Log.e("ASDF", "ADFGADS");
+                    MapFilterLoader a = new MapFilterLoader();
+                    a.execute();
+                }
+            });
+
             filterResume = true;
         }
     }
 
 
-    private void ShowLoadingDialog() {
+    public static void ShowLoadingDialog() {
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
         } else {
-            LoadingDialog = new Dialog(this, android.R.style.Theme_Translucent);
+            LoadingDialog = new Dialog(context, android.R.style.Theme_Translucent);
             LoadingDialog.setCancelable(false);
             LoadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             LoadingDialog.setContentView(R.layout.load_hub);
             Window window = LoadingDialog.getWindow();
-            Display display = this.getWindowManager().getDefaultDisplay();
+            Display display = context.getWindowManager().getDefaultDisplay();
             Point size = new Point();
             display.getSize(size);
             int w = size.x;
