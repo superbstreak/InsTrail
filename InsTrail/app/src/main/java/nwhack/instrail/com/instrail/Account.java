@@ -56,7 +56,6 @@ public class Account extends MainActivity {
             if (mInstagramSession.isActive()) {
                 setContentView(R.layout.activity_user);
 
-                showToast("Already Logged in!");
                 InstagramUser instagramUser = mInstagramSession.getUser();
 
                 mLoadingPb 	= (ProgressBar) findViewById(R.id.pb_loading);
@@ -66,28 +65,28 @@ public class Account extends MainActivity {
                 ((TextView) findViewById(R.id.tv_username)).setText(instagramUser.username);
 
 
-            ((Button) findViewById(R.id.btn_logout)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View arg0) {
-                    mInstagramSession.reset();
+                ((Button) findViewById(R.id.btn_logout)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View arg0) {
+                        mInstagramSession.reset();
 
-                    startActivity(new Intent(Account.this, Account.class));
-
-
-                    finish();
-                }
-            });
+                        startActivity(new Intent(Account.this, Account.class));
+                        finish();
+                    }
+                });
 
             } else {
                 setContentView(R.layout.activity_account);
+                ((Button) findViewById(R.id.btn_connect)).setOnClickListener(new View.OnClickListener() {
 
-            ((Button) findViewById(R.id.btn_connect)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View arg0) {
-                    //mInstagram.authorize(mAuthListener);
-                }
-            });
+                    @Override
+                    public void onClick(View arg0) {
+                        //mInstagram.authorize(mAuthListener);
+
+                    }
+                });
             }
+
         }
 
         @Override
@@ -97,7 +96,7 @@ public class Account extends MainActivity {
 
         @Override
         public void onCancel() {
-
+            showToast("OK. Maybe later?");
         }
 
     };
@@ -117,7 +116,7 @@ public class Account extends MainActivity {
     }
 
     private void showToast(String text) {
-        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
 
 
