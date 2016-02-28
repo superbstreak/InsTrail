@@ -1,15 +1,10 @@
 package nwhack.instrail.com.instrail;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -17,34 +12,30 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+
 import net.londatiga.android.instagram.Instagram;
-import net.londatiga.android.instagram.InstagramRequest;
-import net.londatiga.android.instagram.InstagramSession;
 import net.londatiga.android.instagram.InstagramUser;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 public class Account extends MainActivity {
-
-    WebView webView;
-
-    private InstagramSession mInstagramSession;
-    private Instagram mInstagram;
 
     private ProgressBar mLoadingPb;
     private GridView mGridView;
 
-    private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
-    private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
-    private static final String REDIRECT_URI = "com-instrail://instagramredirect";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mInstagramSession = mInstagram.getSession();
+
+        //setContentView(R.layout.activity_account);
+        mInstagram.authorize(mAuthListener);
+
+
+    }
 
     private Instagram.InstagramAuthListener mAuthListener = new Instagram.InstagramAuthListener() {
         @Override
@@ -56,14 +47,32 @@ public class Account extends MainActivity {
             if (mInstagramSession.isActive()) {
                 setContentView(R.layout.activity_user);
 
-                showToast("Already Logged in!");
                 InstagramUser instagramUser = mInstagramSession.getUser();
 
-                mLoadingPb 	= (ProgressBar) findViewById(R.id.pb_loading);
-                mGridView	= (GridView) findViewById(R.id.gridView);
+                //mLoadingPb = (ProgressBar) findViewById(R.id.pb_loading);
+                mGridView = (GridView) findViewById(R.id.gridView);
+
 
                 ((TextView) findViewById(R.id.tv_name)).setText(instagramUser.fullName);
                 ((TextView) findViewById(R.id.tv_username)).setText(instagramUser.username);
+
+
+                final ImageView photo = (ImageView) findViewById(R.id.iv_user);
+
+                ImageRequest request = new ImageRequest(instagramUser.profilPicture,
+                        new Response.Listener<Bitmap>() {
+                            @Override
+                            public void onResponse(Bitmap bitmap) {
+                                photo.setImageBitmap(bitmap);
+                            }
+                        }, 0, 0, null,
+                        new Response.ErrorListener() {
+                            public void onErrorResponse(VolleyError error) {
+                                photo.setImageResource(R.drawable.ic_photo);
+                            }
+                        });
+
+                MainActivity.getVolleyController().addToRequestQueue(request);
 
 
                 ((Button) findViewById(R.id.btn_logout)).setOnClickListener(new View.OnClickListener() {
@@ -73,25 +82,26 @@ public class Account extends MainActivity {
 
                         startActivity(new Intent(Account.this, Account.class));
 
-
                         finish();
                     }
                 });
 
             } else {
                 setContentView(R.layout.activity_account);
-
                 ((Button) findViewById(R.id.btn_connect)).setOnClickListener(new View.OnClickListener() {
+
                     @Override
                     public void onClick(View arg0) {
                         //mInstagram.authorize(mAuthListener);
                     }
                 });
             }
+
         }
 
         @Override
         public void onError(String error) {
+
             showToast(error);
         }
 
@@ -103,23 +113,8 @@ public class Account extends MainActivity {
     };
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mInstagram = new Instagram(this, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
-        mInstagramSession   = mInstagram.getSession();
-
-        //setContentView(R.layout.activity_account);
-        mInstagram.authorize(mAuthListener);
-
-
-    }
-
     private void showToast(String text) {
-        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
     }
-
-
-
 }
+

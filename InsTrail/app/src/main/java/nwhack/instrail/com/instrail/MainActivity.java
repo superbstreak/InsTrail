@@ -3,28 +3,20 @@ package nwhack.instrail.com.instrail;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,9 +24,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import net.londatiga.android.instagram.Instagram;
+import net.londatiga.android.instagram.InstagramRequest;
+import net.londatiga.android.instagram.InstagramSession;
+
 import java.util.ArrayList;
 
-import nwhack.instrail.com.instrail.Adapter.FilterAdapter;
 import nwhack.instrail.com.instrail.Controller.BaseController;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
@@ -42,6 +37,8 @@ import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.Model.Trail;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
+
+    int ZOOM_LEVEL = 9;
 
     private Activity context;
     private Context appContext;
@@ -56,13 +53,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
 
+    private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
+    private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
+    private static final String REDIRECT_URI = "com-instrail://instagramredirect";
+    protected static final String ZAMA_ZINGO_ACCESS_TOKEN = "2257996576.cf0499d.08834443f30a4d278c28fcaf41af2f71";
+    protected static final String ZAMA_ZINGO_USER_ID = "2257996576";
+
+    protected Instagram mInstagram;
+    protected InstagramSession mInstagramSession;
+    protected InstagramRequest instagramRequest;
+
     private static VolleyController requestController;
     private ArrayList<InstData> mainData = new ArrayList<>();
     private ArrayList<InstData> localData = new ArrayList<>();
     private ArrayList<Trail> trails = new ArrayList<>();
 
     // Singleton getters
-    public Context getAppContext(){
+    public Context getAppContext() {
         return this.appContext;
     }
 
@@ -108,6 +115,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mInstagram = new Instagram(this, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
         context = this;
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
@@ -128,8 +137,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         trailsButton.setOnClickListener(this);
 
         String url = "http://icons.iconarchive.com/icons/iconka/meow/256/cat-grumpy-icon.png";
-
-        for(int i = 0; i < 999; i++) {
+        for (int i = 0; i < 999; i++) {
             mainData.add(new InstData(url, url, url));
             ArrayList<InstData> test = new ArrayList<>();
             test.add(new InstData(url, url, url));
@@ -137,6 +145,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             test.add(new InstData(url, url, url));
             trails.add(new Trail("Vanouver Trail", test, url));
         }
+
+        scrapeInstagram();
+    }
+
+    public void scrapeInstagram() {
+        //TODO
+        instagramRequest = new InstagramRequest();
+        //createRequest(String method, String endpoint, List < NameValuePair > params)
     }
 
     @Override
@@ -147,7 +163,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         BaseController.appContext = getApplicationContext();
         getVolleyController(); // place here to make sure it never dies
     }
-
 
 
     /**
@@ -164,9 +179,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng vancouver = new LatLng(49.485079, -122.985231);
+        mMap.addMarker(new MarkerOptions().position(vancouver).title("Marker in Vancouver"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(vancouver));
+
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(ZOOM_LEVEL));
     }
 
     @Override
@@ -210,7 +227,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private void showFilterPopUp () {
+    private void showFilterPopUp() {
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.dismiss();
         }
@@ -232,7 +249,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             RadioButton filterTop = (RadioButton) filterPopup.findViewById(R.id.radioTop);
             RadioButton filterLow = (RadioButton) filterPopup.findViewById(R.id.radioLow);
             RadioButton filterMy = (RadioButton) filterPopup.findViewById(R.id.radioMyPic);
-            RelativeLayout outside  = (RelativeLayout) filterPopup.findViewById(R.id.filter_background);
+            RelativeLayout outside = (RelativeLayout) filterPopup.findViewById(R.id.filter_background);
 
             // no filter, top 10, low 10, my picture
             final int[] buttonID = new int[4];
@@ -268,9 +285,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         setCurrentFilter(0);
                     } else if (checkedId == buttonID[1]) {
                         setCurrentFilter(1);
-                    } else if (checkedId == buttonID[2]){
+                    } else if (checkedId == buttonID[2]) {
                         setCurrentFilter(2);
-                    } else if (checkedId == buttonID[3]){
+                    } else if (checkedId == buttonID[3]) {
                         setCurrentFilter(3);
                     }
 
