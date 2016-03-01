@@ -8,6 +8,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -81,6 +82,14 @@ public class Account extends BaseActivity {
                         mInstagramSession.reset();
 
                         startActivity(new Intent(Account.this, Account.class));
+
+                        finish();
+                    }
+                });
+
+                ((LinearLayout) findViewById(R.id.account_back)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View arg0) {
 
                         finish();
                     }

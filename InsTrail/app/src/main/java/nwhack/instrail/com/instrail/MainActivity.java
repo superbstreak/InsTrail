@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
@@ -233,14 +234,23 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_MAIN);
             startActivity(intent);
         } else if (view.equals(cameraButton)) {
-            Intent intent = new Intent(MainActivity.this, Camera.class);
-            startActivity(intent);
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, Constant.REQUEST_IMAGE_CAPTURE);
+            }
         } else if (view.equals(filterButton)) {
             filterResume = true;
             showFilterPopUp();
         } else if (view.equals(trailsButton)) {
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Constant.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
         }
     }
 

@@ -22,6 +22,8 @@ public class Constant {
     public static final String ZAMA_ZINGO_USER_ID = "2257996576";
     public static final String TAG = "vancouvertrails";
 
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
+
     public static final String FIRST_URL = "https://api.instagram.com/v1/tags/" + TAG + "/media/recent?access_token=" + ZAMA_ZINGO_ACCESS_TOKEN;
 
 }
