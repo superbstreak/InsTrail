@@ -12,6 +12,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+import nwhack.instrail.com.instrail.BaseActivity;
 import nwhack.instrail.com.instrail.MainActivity;
 import nwhack.instrail.com.instrail.R;
 
@@ -60,7 +61,7 @@ public class FilterAdapter extends BaseAdapter{
             holder = (ViewHolder) view.getTag();
         }
 
-        if (position == MainActivity.getCurrentFilter()) {
+        if (position == BaseActivity.getCurrentFilter()) {
             holder.button.setChecked(true);
         } else {
             holder.button.setChecked(false);

@@ -19,14 +19,14 @@ import com.android.volley.toolbox.ImageRequest;
 import net.londatiga.android.instagram.Instagram;
 import net.londatiga.android.instagram.InstagramUser;
 
-public class Account extends MainActivity {
+public class Account extends BaseActivity {
 
     private ProgressBar mLoadingPb;
     private GridView mGridView;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mInstagramSession = mInstagram.getSession();
@@ -68,11 +68,11 @@ public class Account extends MainActivity {
                         }, 0, 0, null,
                         new Response.ErrorListener() {
                             public void onErrorResponse(VolleyError error) {
-                                photo.setImageResource(R.drawable.ic_photo);
+                                photo.setImageResource(R.mipmap.trail_stub);
                             }
                         });
 
-                MainActivity.getVolleyController().addToRequestQueue(request);
+                getVolleyController().addToRequestQueue(request);
 
 
                 ((Button) findViewById(R.id.btn_logout)).setOnClickListener(new View.OnClickListener() {
@@ -107,7 +107,7 @@ public class Account extends MainActivity {
 
         @Override
         public void onCancel() {
-
+            finish();
         }
 
     };

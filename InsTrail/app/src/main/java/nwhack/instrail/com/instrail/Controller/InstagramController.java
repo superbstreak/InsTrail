@@ -1,6 +1,7 @@
 package nwhack.instrail.com.instrail.Controller;
 
 import android.util.Log;
+import android.widget.BaseAdapter;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import nwhack.instrail.com.instrail.BaseActivity;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.MainActivity;
 import nwhack.instrail.com.instrail.Model.InstData;
@@ -36,10 +38,13 @@ public class InstagramController {
     private List<JSONObject> jsons = new ArrayList<>();
 
     public InstagramController() {
-
+        BaseActivity.trailMapper = new HashMap<>();
+        BaseActivity.mainData = new ArrayList<InstData>();
+        BaseActivity.trails = new ArrayList<>();
     }
 
     public void getTagRecentMedia(String url, boolean isLast) {
+            jsons = new ArrayList<>();
             final boolean isLastone = isLast;
             // Request a string response from the provided URL.
             JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url,
@@ -49,19 +54,24 @@ public class InstagramController {
                             Log.d("INSTAGRAM DATA", response.toString());
                             jsons.add(response);
                             String nextAction = processReturnData(response);
-                            if (nextAction != null) {
-                                if ( MainActivity.getContext() != null) {
-                                    if (isLastone) {
-                                        MainActivity.getCurrentDataListener().onDataReceive(processAllJson(),nextAction);
-                                    } else {
-                                        MainActivity.getCurrentDataListener().onDataLoading(nextAction);
+                            BaseActivity.currentCount += 1;
+                            try {
+                                if (nextAction != null) {
+                                    BaseActivity.nextActionURL = nextAction;
+                                    if (BaseActivity.getCurrentDataListener() != null) {
+                                        if (isLastone) {
+                                            BaseActivity.getCurrentDataListener().onDataReceive(processAllJson(),nextAction);
+                                        } else {
+                                            BaseActivity.getCurrentDataListener().onDataLoading(nextAction);
+                                        }
+                                    }
+                                    BaseActivity.notifyObserver();
+                                } else {
+                                    if (BaseActivity.getCurrentDataListener() != null) {
+                                        BaseActivity.getCurrentDataListener().onDataError();
                                     }
                                 }
-                            } else {
-                                if (MainActivity.getContext() != null) {
-                                    MainActivity.getCurrentDataListener().onDataError();
-                                }
-                            }
+                            } catch (Exception e) {}
                         }
                     }, new Response.ErrorListener() {
                 @Override
@@ -70,7 +80,7 @@ public class InstagramController {
 
                 }
             });
-        MainActivity.getVolleyController().addToRequestQueue(stringRequest);
+        BaseActivity.getVolleyController().addToRequestQueue(stringRequest);
 
     }
 
@@ -80,7 +90,6 @@ public class InstagramController {
             try {
                 JSONObject page = object.getJSONObject("pagination");
                 result = page.getString("next_url");
-//                Log.e("PARSE", result+"");
             } catch (Exception e) {
                 Log.e("TEST", "19"+e);
             }
@@ -88,10 +97,8 @@ public class InstagramController {
         return  result;
     }
 
-    private ArrayList<InstData> processAllJson(){
-        MainActivity.trailMapper = new HashMap<>();
-        MainActivity.mainData = new ArrayList<InstData>();
-        MainActivity.trails = new ArrayList<>();
+    private ArrayList<Trail> processAllJson(){
+        ArrayList<Trail> tempData = new ArrayList<>();
         if (this.jsons != null) {
             int size = jsons.size();
             for (int i = 0; i< size; i++){
@@ -122,26 +129,27 @@ public class InstagramController {
                             name = location.getString("name")+"";
                             latD = Double.parseDouble(lat);
                             lonD = Double.parseDouble(lon);
-                            if (MainActivity.trailMapper.containsKey(name)) {
-                                Trail tr = MainActivity.trails.get(MainActivity.trailMapper.get(name));
+                            if (BaseActivity.trailMapper.containsKey(name)) {
+                                Trail tr = BaseActivity.trails.get(BaseActivity.trailMapper.get(name));
                                 tr.addData(image);
                             } else {
                                 ArrayList<InstData> dataList = new ArrayList<InstData>();
                                 dataList.add(image);
-                                MainActivity.trailMapper.put(name, MainActivity.trails.size());
-                                MainActivity.trails.add(new Trail(name,dataList,mid.getString("url"),latD,lonD));
+                                Trail newTrail = new Trail(name,dataList,mid.getString("url"),latD,lonD);
+                                BaseActivity.trailMapper.put(name, BaseActivity.trails.size());
+                                BaseActivity.trails.add(newTrail);
+                                tempData.add(newTrail);
                             }
                         } catch(Exception e){}
 
-                        MainActivity.mainData.add(image);
+                        BaseActivity.mainData.add(image);
                     }
                 } catch (Exception e){
                     Log.e("EXCE", e+"");
                 }
             }
         }
-        Log.e("TRERERE", MainActivity.mainData.size()+"");
-        return MainActivity.mainData;
+        return tempData;
     }
 
     public List<JSONObject> getJson(){

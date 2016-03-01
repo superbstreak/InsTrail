@@ -18,9 +18,10 @@ import java.security.spec.ECField;
 import java.util.ArrayList;
 
 import nwhack.instrail.com.instrail.Adapter.TrailAdapter;
+import nwhack.instrail.com.instrail.Interface.UpdateListener;
 import nwhack.instrail.com.instrail.Model.Trail;
 
-public class Trails extends MainActivity {
+public class Trails extends BaseActivity implements UpdateListener{
 
     private Activity mContext;
     private LinearLayout back;
@@ -30,7 +31,7 @@ public class Trails extends MainActivity {
     private ArrayList<Trail> data;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trails);
         mContext = this;
@@ -41,6 +42,7 @@ public class Trails extends MainActivity {
     @Override
     public void onResume() {
         super.onResume();
+        currentUpdateListener = this;
         mContext = this;
         adapter = new TrailAdapter(this, getTrails());
         listview = (ListView) this.findViewById(R.id.trail_listview);
@@ -66,5 +68,10 @@ public class Trails extends MainActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public void onDataUpdate() {
+        this.adapter.notifyDataSetChanged();
     }
 }

@@ -21,6 +21,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 
 import java.util.ArrayList;
 
+import nwhack.instrail.com.instrail.BaseActivity;
 import nwhack.instrail.com.instrail.MainActivity;
 import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.R;
@@ -45,7 +46,7 @@ public class PhotoAdapter extends BaseAdapter {
 
     public PhotoAdapter (Activity context, ArrayList<InstData> img){
         this.mContext = context;
-        this.il = MainActivity.il;
+        this.il = BaseActivity.il;
         this.data = img;
     }
 
@@ -59,6 +60,9 @@ public class PhotoAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
+        if (data != null && data.size() > position) {
+            return  data.get(position);
+        }
         return null;
     }
 
