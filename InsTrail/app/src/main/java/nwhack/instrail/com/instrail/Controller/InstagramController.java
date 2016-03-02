@@ -115,21 +115,28 @@ public class InstagramController {
                         double latD = 0;
                         double lonD = 0;
 
+                        // user
+                        JSONObject user = perUser.getJSONObject("user");
+                        String username = user.getString("username");
+                        String propic = user.getString("profile_picture");
+
                         // Image
                         JSONObject images = perUser.getJSONObject("images");
                         JSONObject low = images.getJSONObject("thumbnail");
                         JSONObject mid = images.getJSONObject("low_resolution");
                         JSONObject high = images.getJSONObject("standard_resolution");
-                        InstData image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"));
+
+                        InstData image;
 
                         try {
                             location = perUser.getJSONObject("location");
                             String lat = location.getString("latitude");
                             String lon = location.getString("longitude");
-                            name = location.getString("name")+"";
+                            name = location.getString("name");
                             latD = Double.parseDouble(lat);
                             lonD = Double.parseDouble(lon);
-                            if (BaseActivity.trailMapper.containsKey(name)) {
+                            image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"),propic,username,name);
+                            if (BaseActivity.trailMapper.containsKey(name+"")) {
                                 Trail tr = BaseActivity.trails.get(BaseActivity.trailMapper.get(name));
                                 tr.addData(image);
                             } else {
@@ -140,7 +147,9 @@ public class InstagramController {
                                 BaseActivity.trails.add(newTrail);
                                 tempData.add(newTrail);
                             }
-                        } catch(Exception e){}
+                        } catch(Exception e){
+                            image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"),propic,username,null);
+                        }
 
                         BaseActivity.mainData.add(image);
                     }

@@ -110,7 +110,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         });
     }
 
-    private void showPhotoPopUp(final String url) {
+    private void showPhotoPopUp(final InstData aPhoto) {
         if (photoPopup != null && photoPopup.isShowing()) {
             photoPopup.dismiss();
         }
@@ -128,8 +128,28 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
             final ImageView photo = (ImageView) photoPopup.findViewById(R.id.photo_ZoomImageView);
             final ImageView close_photo = (ImageView) photoPopup.findViewById(R.id.photo_closeZoom);
+            final ImageView userPhoto = (ImageView) photoPopup.findViewById(R.id.photo_userImage);
+            final TextView username = (TextView) photoPopup.findViewById(R.id.userName);
+            final TextView location = (TextView) photoPopup.findViewById(R.id.imageLocation);
 
-            ImageRequest request = new ImageRequest(url,
+
+            username.setText(aPhoto.getUsername());
+            location.setText(aPhoto.getImageLocation());
+
+            ImageRequest requestUser = new ImageRequest(aPhoto.getUserPhoto(),
+                    new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            userPhoto.setImageBitmap(bitmap);
+                        }
+                    }, 0, 0, null,
+                    new Response.ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            userPhoto.setImageResource(R.drawable.ic_photo);
+                        }
+                    });
+
+            ImageRequest request = new ImageRequest(aPhoto.getLargeURL(),
                     new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap bitmap) {
@@ -143,6 +163,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                     });
 
             getVolleyController().addToRequestQueue(request);
+            getVolleyController().addToRequestQueue(requestUser);
 
             close_photo.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -158,12 +179,11 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        showPhotoPopUp(data.get(position).getLargeURL());
+        showPhotoPopUp(data.get(position));
     }
 
     @Override
     public void onDataUpdate(){
-        Log.e("TEs",incoming_tag+"");
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             data = mainData;
             adapter.notifyDataSetChanged();
