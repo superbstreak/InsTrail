@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
@@ -117,6 +118,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         if (!this.context.isFinishing()) {
             photoPopup = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
             photoPopup.setContentView(R.layout.photo_popup);
+            photoPopup.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
             Window window = photoPopup.getWindow();
             Display display = context.getWindowManager().getDefaultDisplay();
