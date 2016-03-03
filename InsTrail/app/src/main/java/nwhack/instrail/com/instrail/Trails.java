@@ -37,6 +37,10 @@ public class Trails extends BaseActivity implements UpdateListener{
         mContext = this;
         back = (LinearLayout) this.findViewById(R.id.trail_back);
         noTrail = (TextView) this.findViewById(R.id.trail_no);
+
+        adapter = new TrailAdapter(this, getTrails());
+        listview = (ListView) this.findViewById(R.id.trail_listview);
+        listview.setAdapter(adapter);
     }
 
     @Override
@@ -44,9 +48,7 @@ public class Trails extends BaseActivity implements UpdateListener{
         super.onResume();
         currentUpdateListener = this;
         mContext = this;
-        adapter = new TrailAdapter(this, getTrails());
         listview = (ListView) this.findViewById(R.id.trail_listview);
-        listview.setAdapter(adapter);
 
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

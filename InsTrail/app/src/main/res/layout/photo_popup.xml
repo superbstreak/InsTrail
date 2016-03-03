@@ -113,7 +113,7 @@
                 android:layout_centerVertical="true"
                 android:paddingTop= "5dp"
                 android:paddingBottom="5dp"
-                android:id="@+id/imageView"/>                    />
+                android:id="@+id/location_indicator"/>                    />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -124,7 +124,7 @@
                 android:layout_alignParentEnd="true"
                 android:id="@+id/imageLocation"
                 android:ellipsize="end"
-                android:layout_toEndOf="@+id/imageView"
+                android:layout_toEndOf="@+id/location_indicator"
                 android:textColor="#4c4c4c"
                 android:gravity="center_vertical"
                 android:textSize="12sp"/>

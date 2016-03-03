@@ -3,6 +3,9 @@ package nwhack.instrail.com.instrail;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.widget.RemoteViews;
 
 /**
@@ -14,7 +17,8 @@ public class TrailWidget extends AppWidgetProvider {
 
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.trail_widget);
-//        views.setImageViewBitmap(R.id.widget_img1, R.mipmap.trail_stub);
+        Bitmap stub = BitmapFactory.decodeResource(context.getResources(), R.mipmap.trail_stub);
+        views.setImageViewBitmap(R.id.widget_img1, stub);
 
 
         // Instruct the widget manager to update the widget

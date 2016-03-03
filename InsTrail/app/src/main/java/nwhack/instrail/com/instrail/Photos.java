@@ -50,6 +50,10 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
         Intent intent = getIntent();
+        noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
+        gridView = (GridView) this.findViewById(R.id.photo_gridView);
+        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
+        currentUpdateListener = this;
         incoming_tag = null;
         try {
             incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
@@ -57,34 +61,29 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
             setLocalData(BaseActivity.mainData);
+            data = BaseActivity.mainData;
+            adapter = new PhotoAdapter(this, getLocalData());
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
         } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
             // search specified data
             try {
                 incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
                 incoming_trailPos = intent.getIntExtra(Constant.TRAIL_POSITION_TAG, 0);
             } catch (Exception e) {}
+            data =  getTrails().get(incoming_trailPos).getData();
+            adapter = new PhotoAdapter(this,data);
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
         }
-        noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
-        gridView = (GridView) this.findViewById(R.id.photo_gridView);
-        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         currentUpdateListener = this;
-        if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
-            // crash prevention, defult to main data
-            data = BaseActivity.mainData;
-            adapter = new PhotoAdapter(this, getLocalData());
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener(this);
-        } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
-            data =  getTrails().get(incoming_trailPos).getData();
-            adapter = new PhotoAdapter(this,data);
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener(this);
-        }
+        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
+        gridView = (GridView) this.findViewById(R.id.photo_gridView);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -133,10 +132,15 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             final ImageView userPhoto = (ImageView) photoPopup.findViewById(R.id.photo_userImage);
             final TextView username = (TextView) photoPopup.findViewById(R.id.userName);
             final TextView location = (TextView) photoPopup.findViewById(R.id.imageLocation);
-
+            final ImageView location_indicator = (ImageView) photoPopup.findViewById(R.id.location_indicator);
 
             username.setText(aPhoto.getUsername());
             location.setText(aPhoto.getImageLocation());
+            if (aPhoto.getImageLocation().equalsIgnoreCase("Unknown")) {
+                location_indicator.setImageResource(R.drawable.ic_pos);
+            } else {
+                location_indicator.setImageResource(R.drawable.ic_has_location);
+            }
 
             ImageRequest requestUser = new ImageRequest(aPhoto.getUserPhoto(),
                     new Response.Listener<Bitmap>() {
