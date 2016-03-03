@@ -28,13 +28,6 @@ import nwhack.instrail.com.instrail.Model.Trail;
  */
 public class InstagramController {
 
-    private static final String CLIENT_ID = "d91dcfac9ed346478e76999806a15b59";
-    private static final String CLIENT_SECRET = "cc8e2069c8c64e29900060d94475b71d";
-    private static final String REDIRECT_URI = "com-instrail://instagramredirect";
-    protected static final String ZAMA_ZINGO_ACCESS_TOKEN = "2257996576.cf0499d.08834443f30a4d278c28fcaf41af2f71";
-    protected static final String ZAMA_ZINGO_USER_ID = "2257996576";
-    protected static final String TAG = "vancouvertrails";
-    protected static final int CALLS = 3;
     private List<JSONObject> jsons = new ArrayList<>();
 
     public InstagramController() {
@@ -115,21 +108,28 @@ public class InstagramController {
                         double latD = 0;
                         double lonD = 0;
 
+                        // user
+                        JSONObject user = perUser.getJSONObject("user");
+                        String username = user.getString("username");
+                        String propic = user.getString("profile_picture");
+
                         // Image
                         JSONObject images = perUser.getJSONObject("images");
                         JSONObject low = images.getJSONObject("thumbnail");
                         JSONObject mid = images.getJSONObject("low_resolution");
                         JSONObject high = images.getJSONObject("standard_resolution");
-                        InstData image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"));
+
+                        InstData image;
 
                         try {
                             location = perUser.getJSONObject("location");
                             String lat = location.getString("latitude");
                             String lon = location.getString("longitude");
-                            name = location.getString("name")+"";
+                            name = location.getString("name");
                             latD = Double.parseDouble(lat);
                             lonD = Double.parseDouble(lon);
-                            if (BaseActivity.trailMapper.containsKey(name)) {
+                            image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"),propic,username,name);
+                            if (BaseActivity.trailMapper.containsKey(name+"")) {
                                 Trail tr = BaseActivity.trails.get(BaseActivity.trailMapper.get(name));
                                 tr.addData(image);
                             } else {
@@ -140,7 +140,9 @@ public class InstagramController {
                                 BaseActivity.trails.add(newTrail);
                                 tempData.add(newTrail);
                             }
-                        } catch(Exception e){}
+                        } catch(Exception e){
+                            image = new InstData(low.getString("url"), mid.getString("url"), high.getString("url"),propic,username,null);
+                        }
 
                         BaseActivity.mainData.add(image);
                     }

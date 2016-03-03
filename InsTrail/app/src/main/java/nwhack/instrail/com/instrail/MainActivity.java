@@ -2,30 +2,24 @@ package nwhack.instrail.com.instrail;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,38 +29,17 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import net.londatiga.android.instagram.Instagram;
-import net.londatiga.android.instagram.InstagramRequest;
-import net.londatiga.android.instagram.InstagramSession;
-import net.londatiga.android.instagram.util.Cons;
-
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 
-import nwhack.instrail.com.instrail.Controller.BaseController;
-import nwhack.instrail.com.instrail.Controller.InstagramController;
-import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
-import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.Model.Trail;
 
 public class MainActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
     private static Activity context;
     private boolean filterResume = false;
-
     private GoogleMap mMap;
     private Dialog filterPopup;
     private SupportMapFragment mapFragment;
@@ -75,6 +48,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     private LinearLayout cameraButton;
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
+    private LinearLayout settingsButton;
 
     public static Activity getContext() {
         return context;
@@ -92,18 +66,19 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         cameraButton = (LinearLayout) this.findViewById(R.id.main_menu_camera);
         filterButton = (LinearLayout) this.findViewById(R.id.main_menu_filter);
         trailsButton = (LinearLayout) this.findViewById(R.id.main_menu_search);
+        settingsButton = (LinearLayout) this.findViewById(R.id.main_menu_settings);
         mapFragment.getMapAsync(this);
         accountButton.setOnClickListener(this);
         photoButton.setOnClickListener(this);
         cameraButton.setOnClickListener(this);
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
+        settingsButton.setOnClickListener(this);
     }
 
     public void scrapeInstagram() {
         if (isFirstLoad) {
-            String url = "https://api.instagram.com/v1/tags/" + Constant.TAG + "/media/recent?access_token=" + Constant.ZAMA_ZINGO_ACCESS_TOKEN;
-            getScrapper().getTagRecentMedia(url, false);
+            getScrapper().getTagRecentMedia(Constant.FIRST_URL, false);
             isFirstLoad = false;
         }
     }
@@ -244,6 +219,8 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         } else if (view.equals(trailsButton)) {
             Intent intent = new Intent(MainActivity.this, Trails.class);
             startActivity(intent);
+        } else if (view.equals(settingsButton)) {
+            // TODO
         }
     }
 
@@ -280,12 +257,15 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     }
 
     private void showFilterPopUp() {
+        final int previousFilter = getCurrentFilter();
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    MapFilterLoader a = new MapFilterLoader();
-                    a.execute();
+                    if (previousFilter != getCurrentFilter()) {
+                        MapFilterLoader a = new MapFilterLoader();
+                        a.execute();
+                    }
                 }
             });
             filterPopup.dismiss();
@@ -364,13 +344,14 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    MapFilterLoader a = new MapFilterLoader();
-                    a.execute();
+                    if (previousFilter != getCurrentFilter()) {
+                        MapFilterLoader a = new MapFilterLoader();
+                        a.execute();
+                    }
                 }
             });
             filterResume = true;
         }
     }
-
 
 }

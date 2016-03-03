@@ -9,9 +9,13 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-feature android:name="android.hardware.camera"
+
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="true" />
-    <string android:name="google_app_id">741734204434</string>
+
+    <string android:name="google_app_id">741734204434
+    </string>
 
     <application
         android:allowBackup="true"
@@ -32,21 +36,19 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-
         <activity
             android:name=".Splash"
             android:screenOrientation="portrait">
-
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Account"
             android:screenOrientation="portrait" />
@@ -62,6 +64,16 @@
         <activity
             android:name=".Trails"
             android:screenOrientation="portrait" />
+
+        <receiver android:name=".TrailWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/trail_widget_info" />
+        </receiver>
     </application>
 
 </manifest>

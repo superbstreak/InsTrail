@@ -3,3 +3,9 @@ InsTrail/InstagramAndroid/build/intermediates/incremental/mergeReleaseAssets/mer
 InsTrail/InstagramAndroid/build/intermediates/incremental/mergeReleaseJniLibFolders/merger.xml
 InsTrail/InstagramAndroid/build/intermediates/incremental/packageReleaseResources/merger.xml
 InsTrail/InstagramAndroid/build/outputs/aar/InstagramAndroid-release.aar
+InsTrail/InstagramAndroid/build/intermediates/bundles/debug/classes.jar
+InsTrail/InstagramAndroid/build/intermediates/incremental/mergeDebugAndroidTestAssets/merger.xml
+InsTrail/InstagramAndroid/build/intermediates/incremental/mergeDebugAssets/merger.xml
+InsTrail/InstagramAndroid/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+InsTrail/InstagramAndroid/build/intermediates/incremental/packageDebugResources/merger.xml
+InsTrail/InstagramAndroid/build/outputs/aar/InstagramAndroid-debug.aar

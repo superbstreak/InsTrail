@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
@@ -49,6 +50,10 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
         Intent intent = getIntent();
+        noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
+        gridView = (GridView) this.findViewById(R.id.photo_gridView);
+        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
+        currentUpdateListener = this;
         incoming_tag = null;
         try {
             incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
@@ -56,34 +61,29 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             // crash prevention, defult to main data
             setLocalData(BaseActivity.mainData);
+            data = BaseActivity.mainData;
+            adapter = new PhotoAdapter(this, getLocalData());
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
         } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
             // search specified data
             try {
                 incoming_tag = intent.getStringExtra(Constant.PHOTO_INTENT_TAG);
                 incoming_trailPos = intent.getIntExtra(Constant.TRAIL_POSITION_TAG, 0);
             } catch (Exception e) {}
+            data =  getTrails().get(incoming_trailPos).getData();
+            adapter = new PhotoAdapter(this,data);
+            gridView.setAdapter(adapter);
+            gridView.setOnItemClickListener(this);
         }
-        noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
-        gridView = (GridView) this.findViewById(R.id.photo_gridView);
-        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         currentUpdateListener = this;
-        if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
-            // crash prevention, defult to main data
-            data = BaseActivity.mainData;
-            adapter = new PhotoAdapter(this, getLocalData());
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener(this);
-        } else if (incoming_tag != null && incoming_tag.equals(Constant.PHOTO_TAG_TRAIL)) {
-            data =  getTrails().get(incoming_trailPos).getData();
-            adapter = new PhotoAdapter(this,data);
-            gridView.setAdapter(adapter);
-            gridView.setOnItemClickListener(this);
-        }
+        backButton = (LinearLayout) this.findViewById(R.id.photo_header);
+        gridView = (GridView) this.findViewById(R.id.photo_gridView);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -110,13 +110,14 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         });
     }
 
-    private void showPhotoPopUp(final String url) {
+    private void showPhotoPopUp(final InstData aPhoto) {
         if (photoPopup != null && photoPopup.isShowing()) {
             photoPopup.dismiss();
         }
         if (!this.context.isFinishing()) {
             photoPopup = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
             photoPopup.setContentView(R.layout.photo_popup);
+            photoPopup.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
             Window window = photoPopup.getWindow();
             Display display = context.getWindowManager().getDefaultDisplay();
@@ -128,8 +129,33 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
             final ImageView photo = (ImageView) photoPopup.findViewById(R.id.photo_ZoomImageView);
             final ImageView close_photo = (ImageView) photoPopup.findViewById(R.id.photo_closeZoom);
+            final ImageView userPhoto = (ImageView) photoPopup.findViewById(R.id.photo_userImage);
+            final TextView username = (TextView) photoPopup.findViewById(R.id.userName);
+            final TextView location = (TextView) photoPopup.findViewById(R.id.imageLocation);
+            final ImageView location_indicator = (ImageView) photoPopup.findViewById(R.id.location_indicator);
 
-            ImageRequest request = new ImageRequest(url,
+            username.setText(aPhoto.getUsername());
+            location.setText(aPhoto.getImageLocation());
+            if (aPhoto.getImageLocation().equalsIgnoreCase("Unknown")) {
+                location_indicator.setImageResource(R.drawable.ic_pos);
+            } else {
+                location_indicator.setImageResource(R.drawable.ic_has_location);
+            }
+
+            ImageRequest requestUser = new ImageRequest(aPhoto.getUserPhoto(),
+                    new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            userPhoto.setImageBitmap(bitmap);
+                        }
+                    }, 0, 0, null,
+                    new Response.ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            userPhoto.setImageResource(R.drawable.ic_photo);
+                        }
+                    });
+
+            ImageRequest request = new ImageRequest(aPhoto.getLargeURL(),
                     new Response.Listener<Bitmap>() {
                         @Override
                         public void onResponse(Bitmap bitmap) {
@@ -143,6 +169,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                     });
 
             getVolleyController().addToRequestQueue(request);
+            getVolleyController().addToRequestQueue(requestUser);
 
             close_photo.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -158,12 +185,11 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        showPhotoPopUp(data.get(position).getLargeURL());
+        showPhotoPopUp(data.get(position));
     }
 
     @Override
     public void onDataUpdate(){
-        Log.e("TEs",incoming_tag+"");
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             data = mainData;
             adapter.notifyDataSetChanged();
