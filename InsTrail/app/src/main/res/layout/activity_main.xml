@@ -16,7 +16,6 @@ tools:context=".MainActivity">
         android:layout_height="0dp"
         android:visibility="gone"
         android:orientation="horizontal"
-        android:background="#ef0e5fdd"
         android:layout_weight="0.5"
         android:id="@+id/main_header">
 
@@ -55,6 +54,7 @@ tools:context=".MainActivity">
         android:layout_height="0dp"
         android:orientation="horizontal"
         android:background="#ef0e5fdd"
+        android:padding="5dp"
         android:layout_weight="0.5"
         android:id="@+id/main_menu">
 
@@ -71,7 +71,7 @@ tools:context=".MainActivity">
                 android:layout_height="0dp"
                 android:layout_weight="0.65"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_account"/>
+                android:src="@drawable/selector_account"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -97,7 +97,7 @@ tools:context=".MainActivity">
                 android:layout_height="0dp"
                 android:layout_weight="0.65"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_photo"/>
+                android:src="@drawable/selector_photo"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -123,7 +123,7 @@ tools:context=".MainActivity">
                 android:layout_height="0dp"
                 android:scaleType="centerInside"
                 android:layout_weight="0.65"
-                android:src="@drawable/ic_camera"/>
+                android:src="@drawable/selector_camera"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -149,7 +149,7 @@ tools:context=".MainActivity">
                 android:layout_height="0dp"
                 android:layout_weight="0.65"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_filter"/>
+                android:src="@drawable/selector_filter"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -174,7 +174,7 @@ tools:context=".MainActivity">
                 android:layout_height="0dp"
                 android:layout_weight="0.65"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_search"/>
+                android:src="@drawable/selector_trails"/>
 
             <TextView
                 android:layout_width="match_parent"
