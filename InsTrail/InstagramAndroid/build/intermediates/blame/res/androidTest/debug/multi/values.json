@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/res/merged/androidTest/debug/values/values.xml",
+        "outputFile": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\res\\merged\\androidTest\\debug\\values\\values.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 108
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 2,
                         "startColumn": 4,
@@ -30,7 +30,7 @@
                     "endOffset": 164
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,
@@ -49,7 +49,7 @@
                     "endOffset": 217
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,
@@ -68,7 +68,7 @@
                     "endOffset": 271
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
@@ -87,7 +87,8 @@
                     "endOffset": 324
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",                    "position": {
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "position": {
                         "startLine": 6,
                         "startColumn": 4,
                         "startOffset": 276,
@@ -106,7 +107,7 @@
                     "endOffset": 615
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 7,
                         "startColumn": 4,
@@ -127,7 +128,7 @@
                     "endOffset": 775
                 },
                 "from": {
-                    "file": "/Users/semihsezer/nwhacks2016/InsTrail/InstagramAndroid/build/intermediates/bundles/debug/res/values/values.xml",
+                    "file": "C:\\Users\\Borislav\\Documents\\Repositories\\nwHacks2016\\InsTrail\\InstagramAndroid\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 14,
                         "startColumn": 4,

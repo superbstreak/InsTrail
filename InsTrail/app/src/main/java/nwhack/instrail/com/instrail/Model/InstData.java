@@ -14,12 +14,12 @@ public class InstData {
     private String largeURL;
     private boolean isStub = true;
 
-    public InstData(String small, String medium, String large, String userphoto, String username, String location) {
+    public InstData(String small, String medium, String large, String userPhoto, String username, String location) {
         this.smallURL = small;
         this.mediumURL = medium;
         this.largeURL = large;
         this.username = username;
-        this.userPhoto = userphoto;
+        this.userPhoto = userPhoto;
         this.imageLocation = location;
         this.isStub = true;
     }
@@ -36,7 +36,7 @@ public class InstData {
         if (username == null) {
             username = "username";
         }
-        return "@"+username;
+        return "@" + username;
     }
 
     public void setUsername(String username) {
@@ -56,6 +56,28 @@ public class InstData {
 
     public boolean isStub() {
         return isStub;
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InstData instData = (InstData) o;
+
+        if (isStub != instData.isStub) return false;
+        if (!smallURL.equals(instData.smallURL)) return false;
+        if (!mediumURL.equals(instData.mediumURL)) return false;
+        return largeURL.equals(instData.largeURL);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = smallURL.hashCode();
+        result = 31 * result + mediumURL.hashCode();
+        result = 31 * result + largeURL.hashCode();
+        result = 31 * result + (isStub ? 1 : 0);
+        return result;
     }
 
     public void setIsStub(boolean b) {

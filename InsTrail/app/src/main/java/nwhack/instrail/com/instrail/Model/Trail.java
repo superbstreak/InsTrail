@@ -1,9 +1,8 @@
 package nwhack.instrail.com.instrail.Model;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by Rob on 2/28/2016.
@@ -11,16 +10,15 @@ import java.util.Comparator;
 public class Trail implements Comparator<Trail> {
 
     private String name;
-    private ArrayList<InstData> data;
+    private List<InstData> data;
     private String thumbnail;
     private double lat;
     private double lon;
 
-    public Trail () {
-
+    public Trail() {
     }
 
-    public Trail(String name, ArrayList<InstData> d, String thumbnail, double lat, double lon) {
+    public Trail(String name, List<InstData> d, String thumbnail, double lat, double lon) {
         this.name = name;
         data = new ArrayList<>();
         this.data = d;
@@ -53,11 +51,11 @@ public class Trail implements Comparator<Trail> {
         this.name = name;
     }
 
-    public ArrayList<InstData> getData() {
+    public List<InstData> getData() {
         return data;
     }
 
-    public void setData(ArrayList<InstData> data) {
+    public void setData(List<InstData> data) {
         this.data = data;
     }
 

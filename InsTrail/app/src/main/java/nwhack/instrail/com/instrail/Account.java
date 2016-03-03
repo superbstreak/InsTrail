@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -20,6 +19,8 @@ import com.android.volley.toolbox.ImageRequest;
 import net.londatiga.android.instagram.Instagram;
 import net.londatiga.android.instagram.InstagramUser;
 
+import nwhack.instrail.com.instrail.Model.User;
+
 public class Account extends BaseActivity {
 
     private ProgressBar mLoadingPb;
@@ -34,6 +35,9 @@ public class Account extends BaseActivity {
 
         //setContentView(R.layout.activity_account);
         mInstagram.authorize(mAuthListener);
+        if (mInstagramSession.isActive()) {
+            user = new User(mInstagramSession);
+        }
 
 
     }

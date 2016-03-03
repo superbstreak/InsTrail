@@ -2,17 +2,11 @@ package nwhack.instrail.com.instrail.Adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.AnimationDrawable;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.NetworkImageView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -20,9 +14,9 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListe
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import nwhack.instrail.com.instrail.BaseActivity;
-import nwhack.instrail.com.instrail.MainActivity;
 import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.R;
 
@@ -32,8 +26,8 @@ import nwhack.instrail.com.instrail.R;
 public class PhotoAdapter extends BaseAdapter {
 
     private Activity mContext;
-    private ArrayList<InstData> data;
-    private static DisplayImageOptions options=new DisplayImageOptions.Builder()
+    private List<InstData> data;
+    private static DisplayImageOptions options = new DisplayImageOptions.Builder()
             .showImageOnLoading(R.mipmap.trail_stub)
             .showImageForEmptyUri(R.drawable.ic_launcher)
 //												.showImageOnFail(R.drawable.ic_launcher)
@@ -44,7 +38,7 @@ public class PhotoAdapter extends BaseAdapter {
             .build();
     private ImageLoader il;
 
-    public PhotoAdapter (Activity context, ArrayList<InstData> img){
+    public PhotoAdapter(Activity context, List<InstData> img) {
         this.mContext = context;
         this.il = BaseActivity.il;
         this.data = img;
@@ -61,7 +55,7 @@ public class PhotoAdapter extends BaseAdapter {
     @Override
     public Object getItem(int position) {
         if (data != null && data.size() > position) {
-            return  data.get(position);
+            return data.get(position);
         }
         return null;
     }
@@ -84,8 +78,7 @@ public class PhotoAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        il.displayImage(data.get(position).getMediumURL(), holder.imageView, options,new SimpleImageLoadingListener()
-                {
+        il.displayImage(data.get(position).getMediumURL(), holder.imageView, options, new SimpleImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
                     }
