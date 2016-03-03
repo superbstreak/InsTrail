@@ -2,6 +2,7 @@ package nwhack.instrail.com.instrail.Adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,10 +13,12 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import nwhack.instrail.com.instrail.MainActivity;
+import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.Model.Trail;
 import nwhack.instrail.com.instrail.R;
 
@@ -24,10 +27,10 @@ import nwhack.instrail.com.instrail.R;
  */
 public class TrailAdapter extends BaseAdapter {
 
-    private List<Trail> data = new ArrayList<>();
+    private ArrayList<Trail> data = new ArrayList<>();
     private Activity mContext;
 
-    public TrailAdapter(Activity context, List<Trail> data){
+    public TrailAdapter(Activity context, ArrayList<Trail> data){
         this.data = data;
         this.mContext = context;
     }

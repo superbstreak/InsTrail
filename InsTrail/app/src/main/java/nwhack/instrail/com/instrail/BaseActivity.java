@@ -1,13 +1,18 @@
 package nwhack.instrail.com.instrail;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.Window;
+import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -17,7 +22,6 @@ import net.londatiga.android.instagram.InstagramSession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import nwhack.instrail.com.instrail.Controller.BaseController;
 import nwhack.instrail.com.instrail.Controller.InstagramController;
@@ -26,7 +30,6 @@ import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Interface.UpdateListener;
 import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.Model.Trail;
-import nwhack.instrail.com.instrail.Model.User;
 
 /**
  * Created by Rob on 2/29/2016.
@@ -44,14 +47,13 @@ public class BaseActivity extends FragmentActivity {
     protected Instagram mInstagram;
     protected InstagramSession mInstagramSession;
     protected InstagramRequest instagramRequest;
-    public static User user;
-    public static List<Trail> userTrails;
+
     public Dialog LoadingDialog;
     public static ImageLoader il;
     public static VolleyController requestController;
-    public static List<InstData> mainData = new ArrayList<>();
-    public List<InstData> localData = new ArrayList<>();
-    public static List<Trail> trails = new ArrayList<>();
+    public static ArrayList<InstData> mainData = new ArrayList<>();
+    public ArrayList<InstData> localData = new ArrayList<>();
+    public static ArrayList<Trail> trails = new ArrayList<>();
     public static HashMap<String, Integer> trailMapper = new HashMap<>();
     public static InstagramController scrapper;
 
@@ -63,7 +65,7 @@ public class BaseActivity extends FragmentActivity {
     }
 
     @Override
-    public void onResume() {
+    public void onResume(){
         super.onResume();
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
@@ -131,38 +133,35 @@ public class BaseActivity extends FragmentActivity {
         currentFilter = select;
     }
 
-    public List<Trail> getTrails() {
-        if (trails == null) {
+    public ArrayList<Trail> getTrails() {
+        if (trails == null){
             trails = new ArrayList<>();
         }
         return trails;
     }
 
-    public void setLocalData(List<InstData> data) {
+    public void setLocalData(ArrayList<InstData> data) {
         this.localData = data;
     }
 
-    public List<InstData> getLocalData() {
+    public ArrayList<InstData> getLocalData() {
         return this.localData;
     }
 
     public static void notifyObserver() {
         if (currentUpdateListener != null) {
-            try {
+            try{
                 currentUpdateListener.onDataUpdate();
-            } catch (Exception e) {
-            }
+            } catch (Exception e){}
         }
     }
 
-    public void scrapeNextURL() {
-        if (nextActionURL != null) {
-            if (isFirstLoad) {
-                isFirstLoad = false;
-                getScrapper().getTagRecentMedia(nextActionURL, false);
-            } else if (nextActionURL != null && currentCount < currentMax) {
-                getScrapper().getTagRecentMedia(nextActionURL, true);
-            }
+    public void scrapNextURL () {
+        if (isFirstLoad) {
+            isFirstLoad = false;
+            getScrapper().getTagRecentMedia(nextActionURL, false);
+        } else if (nextActionURL != null && currentCount < currentMax) {
+            getScrapper().getTagRecentMedia(nextActionURL, true);
         }
     }
 }

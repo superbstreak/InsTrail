@@ -54,6 +54,9 @@
             android:name=".Photos"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".Camera"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".Filter"
             android:screenOrientation="portrait" />
         <activity
