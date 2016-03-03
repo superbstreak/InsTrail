@@ -2,16 +2,13 @@ package nwhack.instrail.com.instrail;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -20,12 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,32 +27,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import net.londatiga.android.instagram.Instagram;
-import net.londatiga.android.instagram.InstagramRequest;
-import net.londatiga.android.instagram.InstagramSession;
-import net.londatiga.android.instagram.util.Cons;
-
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 
-import nwhack.instrail.com.instrail.Controller.BaseController;
-import nwhack.instrail.com.instrail.Controller.InstagramController;
-import nwhack.instrail.com.instrail.Controller.VolleyController;
 import nwhack.instrail.com.instrail.Interface.DataListener;
-import nwhack.instrail.com.instrail.Model.InstData;
 import nwhack.instrail.com.instrail.Model.Trail;
+import nwhack.instrail.com.instrail.Model.User;
 
 public class MainActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
@@ -100,14 +74,6 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         trailsButton.setOnClickListener(this);
     }
 
-    public void scrapeInstagram() {
-        if (isFirstLoad) {
-            String url = "https://api.instagram.com/v1/tags/" + Constant.TAG + "/media/recent?access_token=" + Constant.ZAMA_ZINGO_ACCESS_TOKEN;
-            getScrapper().getTagRecentMedia(url, false);
-            isFirstLoad = false;
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -115,8 +81,34 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         setCurrentDataListener(this);
         getScrapper();
         scrapeInstagram();
+        if (mInstagram.getSession().isActive()) {
+            if (user == null) {
+                user = new User(mInstagram.getSession());
+            }
+            Log.d("Main: User null?", user.toString());
+            scrapeInstagramForUserData();
+        }
     }
 
+    public void scrapeInstagram() {
+        if (isFirstLoad) {
+            String url = Constant.TAG_BASE_URL + Constant.TAG + Constant.RECENT_MEDIA_ENDPOINT + Constant.ZAMA_ZINGO_ACCESS_TOKEN;
+            getScrapper().getTagRecentMedia(url, false);
+            isFirstLoad = false;
+        }
+    }
+
+    public void scrapeInstagramForUserData() {
+        String url = Constant.USER_BASE_URL + mInstagram.getSession().getUser().id + Constant.RECENT_MEDIA_ENDPOINT + mInstagram.getSession().getAccessToken();
+        if (user != null) {
+            scrapper.getUserRecentMedia(url);
+        }
+    }
+
+
+    /**
+     * Map loader. Marker adder.
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -145,11 +137,11 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         });
     }
 
-    private int searchPos (String name) {
+    private int searchPos(String name) {
         int pos = 0;
         int size = trails.size();
         for (int i = 0; i < size; i++) {
-            if(trails.get(i).getName().equals(name+"")) {
+            if (trails.get(i).getName().equals(name + "")) {
                 pos = i;
                 break;
             }
@@ -157,52 +149,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         return pos;
     }
 
-    private class MapFilterLoader extends AsyncTask <Void,ArrayList<Trail>,ArrayList<Trail>> {
-
-        @Override
-        protected void onPreExecute(){
-            super.onPreExecute();
-            mMap.clear();
-            ShowLoadingDialog();
-        }
-
-        @Override
-        protected ArrayList<Trail> doInBackground(Void... params) {
-            ArrayList<Trail> res = new ArrayList<Trail>();
-            ArrayList<Trail> data = new ArrayList<Trail>();
-            res.addAll(getTrails());
-            int size = getTrails().size();
-            if (currentFilter == 1 || currentFilter == 2) {
-                Collections.sort(res, new Trail());
-                for (int i = 0; i < 10; i++) {
-                    if (currentFilter == 1) {
-                        data.add(res.get(i));
-                    } else if (currentFilter == 2){
-                        data.add(res.get(size-1-i));
-                    }
-                }
-            } else if (currentFilter == 0) {
-                return getTrails();
-            } else if (currentFilter == 3) {
-                return getTrails();
-            }
-
-            return data;
-        }
-
-        @Override
-        protected  void onPostExecute(ArrayList<Trail> result) {
-            super.onPostExecute(result);
-            if (result != null) {
-                bulkAddMarkers(result);
-            }
-            if (LoadingDialog != null && LoadingDialog.isShowing()) {
-                LoadingDialog.dismiss();
-            }
-        }
-    }
-
-    public void bulkAddMarkers(ArrayList<Trail> trailsx) {
+    public void bulkAddMarkers(List<Trail> trailsx) {
         if (trailsx != null) {
             int size = trailsx.size();
             for (int i = 0; i < size; i++) {
@@ -223,6 +170,9 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         }
     }
 
+    /**
+     * Buttons
+     */
     @Override
     public void onClick(View view) {
 
@@ -247,6 +197,10 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         }
     }
 
+    /**
+     * Photo Taking Functionality
+     * executes after taking a photo
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constant.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
@@ -254,21 +208,24 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         }
     }
 
+    /**
+     * DataListener functionality
+     */
     @Override
-    public void onDataReceive(ArrayList<Trail> data, String nextAction) {
+    public void onDataReceive(List<Trail> data, String nextAction) {
         nextActionURL = nextAction;
         bulkAddMarkers(data);
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
             LoadingDialog.dismiss();
         }
-        scrapNextURL();
+        scrapeNextURL();
     }
 
     @Override
     public void onDataLoading(String nextAction) {
         nextActionURL = nextAction;
         ShowLoadingDialog();
-        scrapNextURL();
+        scrapeNextURL();
     }
 
     @Override
@@ -276,9 +233,12 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
             LoadingDialog.dismiss();
         }
-        scrapNextURL();
+        scrapeNextURL();
     }
 
+    /**
+     * Filter Functionality
+     */
     private void showFilterPopUp() {
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -369,6 +329,62 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
                 }
             });
             filterResume = true;
+        }
+    }
+
+    /**
+     * Map Filter Loader after selecting a filter
+     */
+    private class MapFilterLoader extends AsyncTask<Void, List<Trail>, List<Trail>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mMap.clear();
+            ShowLoadingDialog();
+        }
+
+        @Override
+        protected List<Trail> doInBackground(Void... params) {
+            List<Trail> res = new ArrayList<Trail>();
+            List<Trail> data = new ArrayList<Trail>();
+            res.addAll(getTrails());
+            int size = getTrails().size();
+            if (currentFilter == 1 || currentFilter == 2) {
+                Collections.sort(res, new Trail());
+                for (int i = 0; i < 10; i++) {
+                    if (currentFilter == 1) {
+                        data.add(res.get(i));
+                    } else if (currentFilter == 2) {
+                        data.add(res.get(size - 1 - i));
+                    }
+                }
+            } else if (currentFilter == 0) {
+                return getTrails();
+            } else if (currentFilter == 3) {
+                Log.d("User", Boolean.toString(user != null));
+                if (BaseActivity.user != null) {
+//                    if (BaseActivity.user.getTrails() == null || BaseActivity.user.getTrails().isEmpty()) {
+//                        String url = "https://api.instagram.com/v1/users/" + mInstagram.getSession().getUser().id + "/media/recent?access_token=" + mInstagram.getSession().getAccessToken();
+//                        scrapper.getUserRecentMedia(url);
+//                    }
+                    Log.d("User Trails", Integer.toString(BaseActivity.user.getTrails().size()));
+                    return BaseActivity.user.getTrails();
+                }
+            }
+
+            return data;
+        }
+
+        @Override
+        protected void onPostExecute(List<Trail> result) {
+            super.onPostExecute(result);
+            if (result != null) {
+                bulkAddMarkers(result);
+            }
+            if (LoadingDialog != null && LoadingDialog.isShowing()) {
+                LoadingDialog.dismiss();
+            }
         }
     }
 

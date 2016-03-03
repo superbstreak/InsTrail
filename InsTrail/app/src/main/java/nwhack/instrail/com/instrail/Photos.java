@@ -5,11 +5,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.AbsListView;
@@ -18,16 +16,14 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import nwhack.instrail.com.instrail.Adapter.PhotoAdapter;
-import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Interface.UpdateListener;
 import nwhack.instrail.com.instrail.Model.InstData;
 
@@ -41,7 +37,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
     private String incoming_tag = null;
     private int incoming_trailPos = 0;
     private LinearLayout backButton;
-    private ArrayList<InstData> data;
+    private List<InstData> data;
     private int lastPos = 0;
 
     @Override
@@ -91,7 +87,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                     int pagecnt = (int)(gridView.getFirstVisiblePosition());
                     if (currentCount >= currentMax && data != null && pagecnt > data.size() - 21) {
                         currentMax += 3;
-                        scrapNextURL();
+                        scrapeNextURL();
                     }
                 }
             }
@@ -111,6 +107,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
     }
 
     private void showPhotoPopUp(final String url) {
+        // TODO: Add name of trail in title of popup
         if (photoPopup != null && photoPopup.isShowing()) {
             photoPopup.dismiss();
         }
@@ -163,7 +160,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
     @Override
     public void onDataUpdate(){
-        Log.e("TEs",incoming_tag+"");
+        Log.e("TEs", incoming_tag + "");
         if (incoming_tag == null || incoming_tag.equals(Constant.PHOTO_TAG_MAIN)) {
             data = mainData;
             adapter.notifyDataSetChanged();
