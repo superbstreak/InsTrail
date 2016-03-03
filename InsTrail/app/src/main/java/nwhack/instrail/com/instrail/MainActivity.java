@@ -6,12 +6,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -26,19 +29,22 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.Trail;
-import nwhack.instrail.com.instrail.Model.TrailCluster;
 
 public class MainActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener, DataListener {
 
     private static Activity context;
     private boolean filterResume = false;
-
     private GoogleMap mMap;
     private Dialog filterPopup;
     private SupportMapFragment mapFragment;
@@ -256,12 +262,15 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     }
 
     private void showFilterPopUp() {
+        final int previousFilter = getCurrentFilter();
         if (filterPopup != null && filterPopup.isShowing()) {
             filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    MapFilterLoader a = new MapFilterLoader();
-                    a.execute();
+                    if (previousFilter != getCurrentFilter()) {
+                        MapFilterLoader a = new MapFilterLoader();
+                        a.execute();
+                    }
                 }
             });
             filterPopup.dismiss();
@@ -340,13 +349,14 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             filterPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    MapFilterLoader a = new MapFilterLoader();
-                    a.execute();
+                    if (previousFilter != getCurrentFilter()) {
+                        MapFilterLoader a = new MapFilterLoader();
+                        a.execute();
+                    }
                 }
             });
             filterResume = true;
         }
     }
-
 
 }
