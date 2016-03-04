@@ -48,6 +48,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
     private String incoming_tag = null;
     private int incoming_trailPos = 0;
     private LinearLayout backButton;
+    private WebViewClient webView;
     private List<InstData> data;
     private int lastPos = 0;
 
@@ -57,6 +58,9 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         setContentView(R.layout.activity_photos);
         Intent intent = getIntent();
         context = this;
+        if (webView == null) {
+            webView = new WebViewClient();
+        }
         noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
         gridView = (GridView) this.findViewById(R.id.photo_gridView);
         backButton = (LinearLayout) this.findViewById(R.id.photo_header);
@@ -95,6 +99,9 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         super.onResume();
         currentUpdateListener = this;
         context = this;
+        if (webView == null) {
+            webView = new WebViewClient();
+        }
         backButton = (LinearLayout) this.findViewById(R.id.photo_header);
         gridView = (GridView) this.findViewById(R.id.photo_gridView);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -139,7 +146,9 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             int h = size.y;
             window.setLayout(w, h);
 
-            final WebViewClient webView = new WebViewClient();
+            if (webView == null) {
+                webView = new WebViewClient();
+            }
             final ImageView photo = (ImageView) photoPopup.findViewById(R.id.photo_ZoomImageView);
             final ImageView close_photo = (ImageView) photoPopup.findViewById(R.id.photo_closeZoom);
             final ImageView userPhoto = (ImageView) photoPopup.findViewById(R.id.photo_userImage);
@@ -193,7 +202,6 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                         cardFrontContainer.animate().alpha(0.1f).setInterpolator(new AccelerateInterpolator()).start();
                         cardBackContainer.setAlpha(0.3f);
                         backWeb.getSettings().setJavaScriptEnabled(true);
-                        backWeb.getSettings().setDomStorageEnabled(true);
                         backWeb.setWebViewClient(webView);
                         String queryLocation = aPhoto.getImageLocation().replaceAll("\\s", "+");
                         backWeb.loadUrl("https://www.google.ca/search?q="+queryLocation);
@@ -282,7 +290,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             photoPopup.show();
             if (showBack) {
                 try {
-                    new CountDownTimer(240, 1000) {
+                    new CountDownTimer(300, 1000) {
                         public void onTick(long l) {
                         }
 
