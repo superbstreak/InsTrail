@@ -236,7 +236,12 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
             LoadingDialog.dismiss();
         }
-        scrapeNextURL();
+        if (currentCount <= 2) {    // failed on first start, retry
+            isFirstLoad = true;
+            scrapeInstagram();
+        } else {
+            scrapeNextURL();
+        }
     }
 
     /**

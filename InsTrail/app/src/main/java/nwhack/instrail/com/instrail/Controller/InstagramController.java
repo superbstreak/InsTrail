@@ -67,7 +67,11 @@ public class InstagramController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("ERROR", error.toString());
-
+                try {
+                    if (BaseActivity.getCurrentDataListener() != null) {
+                        BaseActivity.getCurrentDataListener().onDataError();
+                    }
+                } catch (Exception e){}
             }
         });
         BaseActivity.getVolleyController().addToRequestQueue(stringRequest);

@@ -17,6 +17,10 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -52,6 +56,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photos);
         Intent intent = getIntent();
+        context = this;
         noPtotoText = (TextView) this.findViewById(R.id.photo_no_photo);
         gridView = (GridView) this.findViewById(R.id.photo_gridView);
         backButton = (LinearLayout) this.findViewById(R.id.photo_header);
@@ -79,6 +84,9 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             adapter = new PhotoAdapter(this, data);
             gridView.setAdapter(adapter);
             gridView.setOnItemClickListener(this);
+            if (data != null && !data.isEmpty()) {
+                showPhotoPopUp(data.get(0),true);
+            }
         }
     }
 
@@ -86,6 +94,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
     public void onResume() {
         super.onResume();
         currentUpdateListener = this;
+        context = this;
         backButton = (LinearLayout) this.findViewById(R.id.photo_header);
         gridView = (GridView) this.findViewById(R.id.photo_gridView);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -105,7 +114,6 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
             }
         });
-        context = this;
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,7 +122,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
         });
     }
 
-    private void showPhotoPopUp(final InstData aPhoto) {
+    private void showPhotoPopUp(final InstData aPhoto, boolean showBack) {
         if (photoPopup != null && photoPopup.isShowing()) {
             photoPopup.dismiss();
         }
@@ -131,6 +139,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             int h = size.y;
             window.setLayout(w, h);
 
+            final WebViewClient webView = new WebViewClient();
             final ImageView photo = (ImageView) photoPopup.findViewById(R.id.photo_ZoomImageView);
             final ImageView close_photo = (ImageView) photoPopup.findViewById(R.id.photo_closeZoom);
             final ImageView userPhoto = (ImageView) photoPopup.findViewById(R.id.photo_userImage);
@@ -146,6 +155,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             final LinearLayout cardBackContainer = (LinearLayout) photoPopup.findViewById(R.id.pp_back_all);
             final ImageView back = (ImageView) photoPopup.findViewById(R.id.pp_back);
             final TextView backTitle = (TextView) photoPopup.findViewById(R.id.pp_location_name);
+            final WebView backWeb = (WebView) photoPopup.findViewById(R.id.pp_back_web);
 
             final AnimatorSet flipBack = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.flip_back);
             final AnimatorSet flipForward = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.flip_forward);
@@ -180,8 +190,13 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                 flipBack.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        cardFrontContainer.animate().alpha(0.3f).setInterpolator(new AccelerateInterpolator()).start();
+                        cardFrontContainer.animate().alpha(0.1f).setInterpolator(new AccelerateInterpolator()).start();
                         cardBackContainer.setAlpha(0.3f);
+                        backWeb.getSettings().setJavaScriptEnabled(true);
+                        backWeb.getSettings().setDomStorageEnabled(true);
+                        backWeb.setWebViewClient(webView);
+                        String queryLocation = aPhoto.getImageLocation().replaceAll("\\s", "+");
+                        backWeb.loadUrl("https://www.google.ca/search?q="+queryLocation);
                     }
 
                     @Override
@@ -265,12 +280,25 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
 
 
             photoPopup.show();
+            if (showBack) {
+                try {
+                    new CountDownTimer(240, 1000) {
+                        public void onTick(long l) {
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            more_info.performClick();
+                        }
+                    }.start();
+                } catch (Exception e) {}
+            }
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        showPhotoPopUp(data.get(position));
+        showPhotoPopUp(data.get(position), false);
     }
 
     @Override
