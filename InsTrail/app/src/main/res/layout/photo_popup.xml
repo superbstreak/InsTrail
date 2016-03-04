@@ -5,14 +5,157 @@
     android:layout_width="match_parent"
     android:background="#B3000000"
     android:id="@+id/dialog_bg"
-    android:paddingTop="40dp"
-    android:paddingBottom="40dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
+    android:paddingTop="45dp"
+    android:paddingBottom="45dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     android:layout_height="match_parent">
 
 
     <LinearLayout
+        android:id="@+id/photo_popup_all"
+        android:layout_width="match_parent"
+        android:visibility="visible"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_bg">
+
+        <LinearLayout
+            android:id="@+id/pp_front_all"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
+                android:orientation="horizontal"
+                android:background="@drawable/rounded_top">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.9"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:minHeight="50dp"
+                    android:orientation="horizontal"
+                    android:background="#00000000">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="0.2"
+                        android:layout_height="match_parent">
+
+                        <com.pkmmte.view.CircularImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/ic_account"
+                            android:layout_centerVertical="true"
+                            android:id="@+id/photo_userImage"
+                            app:border="true"
+                            app:border_color="#EEEEEE"
+                            app:border_width="2dp"
+                            app:shadow="true"/>
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:text="username"
+                        android:paddingLeft="10dp"
+                        android:textColor="#ffffff"
+                        android:layout_weight="0.8"
+                        android:gravity="center_vertical"
+                        android:textSize="15sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:id="@+id/userName"
+                        android:textStyle="bold"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@+id/photo_userImage" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:scaleType="center"
+                    android:padding="5dp"
+                    android:layout_weight="0.2"
+                    android:id="@+id/photo_closeZoom"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_close"/>
+
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.7"
+                android:background="#ffffff"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_image_stub_refresh"
+                android:scaleType="fitCenter"
+                android:id="@+id/photo_ZoomImageView"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1">
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_pos"
+                    android:scaleType="fitCenter"
+                    android:layout_centerVertical="true"
+                    android:paddingTop= "5dp"
+                    android:paddingBottom="5dp"
+                    android:id="@+id/location_indicator"/>                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:maxLines="1"
+                    android:text="Unknown"
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/imageLocation"
+                    android:ellipsize="end"
+                    android:textColor="#4c4c4c"
+                    android:gravity="center_vertical"
+                    android:textSize="12sp"
+                    android:layout_toEndOf="@+id/location_indicator"
+                    android:layout_toLeftOf="@+id/more_info"/>
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_info"
+                    android:scaleType="fitCenter"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:paddingTop= "2dp"
+                    android:paddingBottom="2dp"
+                    android:layout_marginEnd="5dp"
+                    android:id="@+id/more_info"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/photo_popup_backside"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -20,121 +163,81 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
-            android:orientation="horizontal"
-            android:background="@drawable/rounded_top">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/pp_back_all">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.9"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp"
-                android:layout_marginStart="1dp"
-                android:layout_marginBottom="5dp"
-                android:minHeight="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.1"
                 android:orientation="horizontal"
-                android:background="#00000000">
+                android:background="@drawable/rounded_top">
 
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="0.2"
-                    android:layout_height="match_parent">
-
-                    <com.pkmmte.view.CircularImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/ic_account"
-                        android:layout_centerVertical="true"
-                        android:id="@+id/photo_userImage"
-                        app:border="true"
-                        app:border_color="#EEEEEE"
-                        app:border_width="2dp"
-                        app:shadow="true"/>
-
-                </RelativeLayout>
-
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:text="username"
+                    android:layout_weight="0.9"
                     android:paddingLeft="10dp"
-                    android:textColor="#ffffff"
-                    android:layout_weight="0.8"
-                    android:gravity="center_vertical"
-                    android:textSize="15sp"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:id="@+id/userName"
-                    android:textStyle="bold"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@+id/photo_userImage" />
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginBottom="5dp"
+                    android:minHeight="50dp"
+                    android:orientation="horizontal"
+                    android:background="#00000000">
+
+                    <ImageView
+                        android:layout_width="0dp"
+                        android:scaleType="center"
+                        android:padding="5dp"
+                        android:layout_weight="0.2"
+                        android:id="@+id/pp_back"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_back"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:text="Vancouver Trail"
+                        android:paddingLeft="10dp"
+                        android:textColor="#ffffff"
+                        android:layout_weight="0.8"
+                        android:gravity="center"
+                        android:textSize="15sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:id="@+id/pp_location_name"
+                        android:textStyle="bold"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@+id/photo_userImage" />
+
+                </LinearLayout>
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_weight="0.2"
+                    android:layout_height="match_parent"/>
+
 
             </LinearLayout>
 
-            <ImageView
-                android:layout_width="0dp"
-                android:scaleType="center"
-                android:padding="5dp"
-                android:layout_weight="0.2"
-                android:id="@+id/photo_closeZoom"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_close"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.9"
+                android:background="#ffffff"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:orientation="vertical"
+                android:id="@+id/pp_back_description">
+
+
+            </LinearLayout>
 
         </LinearLayout>
 
-
-
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.7"
-            android:background="#ffffff"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:adjustViewBounds="true"
-            android:src="@drawable/ic_image_stub_refresh"
-            android:scaleType="fitCenter"
-            android:id="@+id/photo_ZoomImageView"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1">
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_pos"
-                android:scaleType="fitCenter"
-                android:layout_centerVertical="true"
-                android:paddingTop= "5dp"
-                android:paddingBottom="5dp"
-                android:id="@+id/location_indicator"/>                    />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:maxLines="1"
-                android:text="Unknown"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/imageLocation"
-                android:ellipsize="end"
-                android:layout_toEndOf="@+id/location_indicator"
-                android:textColor="#4c4c4c"
-                android:gravity="center_vertical"
-                android:textSize="12sp"/>
-
-        </RelativeLayout>
-
-
-
     </LinearLayout>
-
-
 
 </LinearLayout>

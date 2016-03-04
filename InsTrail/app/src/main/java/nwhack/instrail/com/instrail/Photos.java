@@ -1,14 +1,22 @@
 package nwhack.instrail.com.instrail;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -129,13 +137,92 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             final TextView username = (TextView) photoPopup.findViewById(R.id.userName);
             final TextView location = (TextView) photoPopup.findViewById(R.id.imageLocation);
             final ImageView location_indicator = (ImageView) photoPopup.findViewById(R.id.location_indicator);
+            final ImageView more_info = (ImageView) photoPopup.findViewById(R.id.more_info);
 
+            final LinearLayout cardFront = (LinearLayout) photoPopup.findViewById(R.id.photo_popup_all);
+            final LinearLayout cardFrontContainer = (LinearLayout) photoPopup.findViewById(R.id.pp_front_all);
+
+            final LinearLayout cardBack = (LinearLayout) photoPopup.findViewById(R.id.photo_popup_backside);
+            final LinearLayout cardBackContainer = (LinearLayout) photoPopup.findViewById(R.id.pp_back_all);
+            final ImageView back = (ImageView) photoPopup.findViewById(R.id.pp_back);
+            final TextView backTitle = (TextView) photoPopup.findViewById(R.id.pp_location_name);
+
+            final AnimatorSet flipBack = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.flip_back);
+            final AnimatorSet flipForward = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.flip_forward);
+
+            cardFront.setVisibility(View.VISIBLE);
+            cardBack.setVisibility(View.GONE);
             username.setText(aPhoto.getUsername());
             location.setText(aPhoto.getImageLocation());
+            backTitle.setText(aPhoto.getImageLocation());
             if (aPhoto.getImageLocation().equalsIgnoreCase("Unknown")) {
                 location_indicator.setImageResource(R.drawable.ic_pos);
+                more_info.setImageResource(R.drawable.ic_info_disable);
             } else {
                 location_indicator.setImageResource(R.drawable.ic_has_location);
+                more_info.setImageResource(R.drawable.ic_info);
+                more_info.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        flipBack.setTarget(cardFront);
+                        flipBack.start();
+                    }
+                });
+
+                back.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        flipForward.setTarget(cardFront);
+                        flipForward.start();
+                    }
+                });
+
+                flipBack.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        cardFrontContainer.animate().alpha(0.3f).setInterpolator(new AccelerateInterpolator()).start();
+                        cardBackContainer.setAlpha(0.3f);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        cardFront.setVisibility(View.GONE);
+                        cardBackContainer.animate().alpha(1).setInterpolator(new AccelerateInterpolator()).start();
+                        cardBack.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                flipForward.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        cardFront.setVisibility(View.VISIBLE);
+                        cardBack.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        cardFrontContainer.animate().alpha(1).setInterpolator(new AccelerateInterpolator()).start();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
             }
 
             ImageRequest requestUser = new ImageRequest(aPhoto.getUserPhoto(),
@@ -175,6 +262,8 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                     }
                 }
             });
+
+
             photoPopup.show();
         }
     }
