@@ -181,7 +181,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                 more_info.setImageResource(R.drawable.ic_info_disable);
             } else {
                 backWeb.setLayerType(View.LAYER_TYPE_SOFTWARE,null);
-                backWeb.getSettings().setJavaScriptEnabled(true);
+                backWeb.getSettings().setJavaScriptEnabled(false);
                 backWeb.setWebViewClient(webView);
                 String queryLocation = aPhoto.getImageLocation().replaceAll("\\s", "+");
                 backWeb.loadUrl("https://www.google.ca/search?q="+queryLocation);
