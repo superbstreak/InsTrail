@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -49,6 +50,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     private LinearLayout filterButton;
     private LinearLayout trailsButton;
     private LinearLayout settingsButton;
+    private LinearLayout mainMenu;
 
     public static Activity getContext() {
         return context;
@@ -67,6 +69,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         filterButton = (LinearLayout) this.findViewById(R.id.main_menu_filter);
         trailsButton = (LinearLayout) this.findViewById(R.id.main_menu_search);
         settingsButton = (LinearLayout) this.findViewById(R.id.main_menu_settings);
+        mainMenu = (LinearLayout) this.findViewById(R.id.main_menu);
         mapFragment.getMapAsync(this);
         accountButton.setOnClickListener(this);
         photoButton.setOnClickListener(this);
@@ -79,6 +82,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     @Override
     public void onResume() {
         super.onResume();
+
         context = this;
         setCurrentDataListener(this);
         getScrapper();
@@ -87,7 +91,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             if (user == null) {
                 user = new User(mInstagram.getSession());
             }
-            Log.d("Main: User null?", user.toString());
+//            Log.d("Main: User null?", user.toString());
             scrapeInstagramForUserData();
         }
     }

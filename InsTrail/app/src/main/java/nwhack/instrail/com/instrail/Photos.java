@@ -5,11 +5,13 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -178,6 +180,11 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                 location_indicator.setImageResource(R.drawable.ic_pos);
                 more_info.setImageResource(R.drawable.ic_info_disable);
             } else {
+                backWeb.setLayerType(View.LAYER_TYPE_SOFTWARE,null);
+                backWeb.getSettings().setJavaScriptEnabled(true);
+                backWeb.setWebViewClient(webView);
+                String queryLocation = aPhoto.getImageLocation().replaceAll("\\s", "+");
+                backWeb.loadUrl("https://www.google.ca/search?q="+queryLocation);
                 location_indicator.setImageResource(R.drawable.ic_has_location);
                 more_info.setImageResource(R.drawable.ic_info);
                 more_info.setOnClickListener(new View.OnClickListener() {
@@ -201,10 +208,6 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                     public void onAnimationStart(Animator animation) {
                         cardFrontContainer.animate().alpha(0.1f).setInterpolator(new AccelerateInterpolator()).start();
                         cardBackContainer.setAlpha(0.3f);
-                        backWeb.getSettings().setJavaScriptEnabled(true);
-                        backWeb.setWebViewClient(webView);
-                        String queryLocation = aPhoto.getImageLocation().replaceAll("\\s", "+");
-                        backWeb.loadUrl("https://www.google.ca/search?q="+queryLocation);
                     }
 
                     @Override
@@ -286,6 +289,12 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
                 }
             });
 
+            photoPopup.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    backWeb.invalidate();
+                }
+            });
 
             photoPopup.show();
             if (showBack) {
