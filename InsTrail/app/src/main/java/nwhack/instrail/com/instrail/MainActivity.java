@@ -201,6 +201,8 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             startActivity(intent);
         } else if (view.equals(settingsButton)) {
             // TODO
+            Intent intent = new Intent(MainActivity.this, DevTest.class);
+            startActivity(intent);
         }
     }
 

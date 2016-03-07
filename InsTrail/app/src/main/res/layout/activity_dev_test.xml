@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="nwhack.instrail.com.instrail.DevTest">
+
+
+    <ImageView
+        android:id="@+id/dev_img1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:src="@drawable/common_plus_signin_btn_text_dark_normal"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_0"/>
+
+    <TextView
+        android:layout_below="@id/gyro_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_1"/>
+
+    <TextView
+        android:layout_below="@id/gyro_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_2"/>
+
+</RelativeLayout>

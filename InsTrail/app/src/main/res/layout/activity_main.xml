@@ -193,7 +193,7 @@ tools:context=".MainActivity">
             android:orientation="vertical"
             android:id="@+id/main_menu_settings"
             android:clickable="true"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_weight="1">
 
             <ImageView
@@ -210,7 +210,7 @@ tools:context=".MainActivity">
                 android:textSize="12sp"
                 android:textColor="#ffffff"
                 android:gravity="center"
-                android:text="Settings"/>
+                android:text="Dev Test"/>
 
 
         </LinearLayout>
