@@ -35,4 +35,40 @@
         android:layout_height="wrap_content"
         android:id="@+id/gyro_2"/>
 
+    <TextView
+        android:layout_below="@id/gyro_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_0"/>
+
+    <TextView
+        android:layout_below="@id/acc_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_1"/>
+
+    <TextView
+        android:layout_below="@id/acc_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_2"/>
+
+    <TextView
+        android:layout_below="@id/acc_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_0"/>
+
+    <TextView
+        android:layout_below="@id/mag_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_1"/>
+
+    <TextView
+        android:layout_below="@id/mag_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_2"/>
+
 </RelativeLayout>
