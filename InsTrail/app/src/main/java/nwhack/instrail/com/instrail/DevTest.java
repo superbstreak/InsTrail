@@ -364,6 +364,7 @@ public class DevTest extends Activity implements SensorEventListener, View.OnCli
                 g0.setText("GYRO dx: " + dx);
                 g1.setText("GYRO dy: " + dy);
                 g2.setText("GYRO FOV-X: " + dy * diameterH + "  IMG1: " + img1.getX());
+                m1.setText("GYRO REAL Y: "+event.values[1]);
                 updateImgPos(dy);
 //                fovX = img1.getX() + dy*diameterH;
 //                img1.setX(fovX);     // roll will change in x direction

@@ -1,43 +1,43 @@
 package nwhack.instrail.com.instrail;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.google.android.gms.maps.model.LatLng;
+import com.android.volley.toolbox.ImageRequest;;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Utils.GPSTracker;
 import nwhack.instrail.com.instrail.Model.Trail;
 
 @SuppressWarnings("deprecation")
-public class VisualizeActivity extends BaseActivity implements SensorEventListener, SurfaceHolder.Callback {
+public class VisualizeActivity extends BaseActivity implements SensorEventListener, SurfaceHolder.Callback, LocationListener {
 
     private Activity mContext;
     private RelativeLayout freeDraw;
@@ -50,8 +50,14 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private Sensor mGyroSensor;
     private Sensor mAcc;
     private Sensor mMag;
-    private GPSTracker gps;
+    private LocationManager lm;
+    private Location location;
 
+    //time smoothing constant for low-pass filter 0 ≤ alpha ≤ 1 ; a smaller value basically means more smoothing
+    // http://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
+    static final float LOW_PASS_ALPHA = 0.25f;
+    static final float HIGH_PASS_ALPHA = 0.8f;
+    private final int MAX_SHOW = 15;
     private final int MAX_DIST = 250; //km
     private double currentLAT;
     private double currentLON;
@@ -60,9 +66,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private boolean hasMag = false;
     private final float PI = 3.1415926f;
     private boolean isTracking;
-    private boolean isCameraOn;
-    private float timestamp;
-    private int[] device = {0,0};
+    private int[] device = {0, 0};
     float[] mGravity;
     float[] mGeomagnetic;
     private float screenVisCen = 0;
@@ -71,72 +75,115 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private List<aDataPoint> data = new ArrayList<>();
     private List<View> texts = new ArrayList<>();
     private double maxDist = 0;
+    private final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // The minimum distance to change updates in meters
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // The minimum time between updates in milliseconds
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visualize);
+        setUpLocationManager();
         freeDraw = (RelativeLayout) this.findViewById(R.id.visualize_free_draw);
         mSurfaceView = (SurfaceView) findViewById(R.id.visualize_surface_camera);
         mContext = this;
         isTracking = false;
-        isCameraOn = true;
         updatePosition();
         setUpSensor();
         registerSensor();
         device[0] = BaseActivity.getDeviceMetric()[0];
         device[1] = BaseActivity.getDeviceMetric()[1];
-        Log.e("VIS", "METRIC "+device[0]+"  "+device[1]);
-        data = processTrailsData(BaseActivity.trails);
+        new MapFilterLoader().executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
-
     }
 
     // ============================================================================================
 
-    private List processTrailsData(List<Trail> trails) {
+    private void setUpLocationManager() {
+        try {
+            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            boolean isGPSEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean isNetworkEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            if (isGPSEnabled) {
+                Log.d("VIS", "Application use GPS Service");
+                lm.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                        this);
+
+                if (lm != null) {
+                    location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    updatePosition();
+                }
+            } else if (isNetworkEnabled) { // Try to get location if you Network Service is enabled
+                Log.d("VIS", "Application use Network State to get GPS coordinates");
+                lm.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER,
+                        MIN_TIME_BW_UPDATES,
+                        MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                        this);
+                if (lm != null) {
+                    location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    updatePosition();
+                }
+            }
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    private List processTrailsData(List<Trail> trr) {
         data = new ArrayList<>();
-        if (trails != null) {
-            int size = trails.size();
+        if (trr != null) {
+            int size = trr.size();
             for (int i =0; i < size; i++) {
-                Trail tr = trails.get(i);
+                Trail tr = trr.get(i);
                 final String name = tr.getName();
                 final String thumb = tr.getThumbnail();
                 final double lat = tr.getLat();
                 final double lon = tr.getLon();
-                Log.e("VIS", "ID: "+i+" NAME: "+name);
-                aDataPoint pt = new aDataPoint(calculateDefaultOffset(
+                final aDataPoint pt = new aDataPoint(calculateDefaultOffset(
                         currentLAT, currentLON, lat,lon),
                         calculateDistance(currentLAT,currentLON,lat,lon),
                         i,name, thumb);
                 data.add(pt);
             }
-            drawInitialData();
         }
         return data;
     }
 
     private void updatePosition() {
-        if (gps == null) {
-            gps = new GPSTracker(this);
+        if (location == null) {
+            setUpLocationManager();
         }
-        // need to be able to update user location whne changed
-        currentLAT = 49.2611;
-        currentLON = -123.2531;
+        try {
+            // need to be able to update user location whne changed
+            currentLON = location.getLongitude();
+            currentLAT = location.getLatitude();
+            Log.d("VIS", "LAT: "+currentLAT+" LONG: "+currentLON);
+        } catch (Exception e){}
     }
 
     private void drawInitialData() {
         if (data != null && freeDraw != null){
             texts = new ArrayList<>();
             int size = data.size();
+            int maxShow = Math.min(size, MAX_SHOW);
             int deviceHeightHalf = device[1]/2;
-            Log.e("MAX?", ""+maxDist);
             for (int i = 0 ; i < size; i ++) {
                 aDataPoint point = data.get(i);
                 if (point.dist > MAX_DIST) {
-
-                } else {
+                    //ignore
+                } else if (maxShow == 0){
+                    break;
+                }
+                else {
+                    maxShow -= 1;
                     View view = getLayoutInflater().inflate(R.layout.visualize_location, null);
                     final ImageView valueTV = (ImageView) view.findViewById(R.id.vis_loc_img);
                     final TextView title = (TextView) view.findViewById(R.id.vis_loc_txtTitle);
@@ -144,7 +191,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                     title.setText(point.name+"");
                     dists.setText((int) point.dist + " km");
                     view.setX(point.x);
-                    view.setY((int)(deviceHeightHalf*(1- (point.dist/maxDist))));
+                    view.setY((int)(deviceHeightHalf*(1.05- (point.dist/maxDist))));
                     view.setTag(i);
                     ImageRequest request = new ImageRequest(point.thumbnail,
                             new Response.Listener<Bitmap>() {
@@ -165,7 +212,6 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                             try {
                                 Intent intent = new Intent(mContext, Photos.class);
                                 intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_TRAIL);
-                                Log.e("VIS", "CLICK ID: "+v.getTag());
                                 intent.putExtra(Constant.TRAIL_POSITION_TAG, (int)v.getTag());
                                 startActivity(intent);
                             } catch (Exception e) {
@@ -194,14 +240,22 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
 
     private void updateDataPos(final float azu) {
         if (data != null && texts != null){
-            for (int i = 0; i < texts.size(); i++) {
-                    View currentView = texts.get(i);
-                    final float currentTVX = currentView.getX();
-                    float newTVX = data.get((int)currentView.getTag()).x - azu*device[0];
+            final float movement = azu*device[0];
+            int size = texts.size();
+            for (int i = 0; i < size; i++) {
+                final View currentView = texts.get(i);
+                final float currentTVX = currentView.getX();
+                final int tag = (int)currentView.getTag();
+                if (hasGyroscope) {
+                    final float newTVX = data.get(tag).x - 2*movement;
+                    currentView.setX(newTVX);
+                } else if (hasAcc && hasMag){
+                    final float newTVX = data.get(tag).x - movement;
                     final float diff = Math.abs(currentTVX - newTVX);
-                    if (diff > device[0]/13) {
+                    if (diff > device[0]/20) {
                         currentView.setX(newTVX);
                     }
+                }
             }
         }
     }
@@ -219,33 +273,37 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
 
     private void unregisterSensor() {
         if (isTracking) {
-            mSensorManager.unregisterListener(this, mGyroSensor);
-            mSensorManager.unregisterListener(this, mAcc);
-            mSensorManager.unregisterListener(this, mMag);
+            if (hasGyroscope) {
+                mSensorManager.unregisterListener(this, mGyroSensor);
+            } else if (hasAcc && hasMag) {
+                mSensorManager.unregisterListener(this, mAcc);
+                mSensorManager.unregisterListener(this, mMag);
+            }
             isTracking = false;
         }
     }
 
     private void registerSensor() {
         if (!isTracking) {
-            mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            mSensorManager.registerListener(this, mAcc, SensorManager.SENSOR_DELAY_NORMAL);
-            mSensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_NORMAL);
+            if (hasGyroscope) {
+                mSensorManager.registerListener(this, mGyroSensor, SensorManager.SENSOR_DELAY_GAME);
+            } else if (hasMag && hasAcc) {
+                mSensorManager.registerListener(this, mAcc, SensorManager.SENSOR_DELAY_GAME);
+                mSensorManager.registerListener(this, mMag, SensorManager.SENSOR_DELAY_GAME);
+            }
             isTracking = true;
         }
     }
 
     private void setUpSensor() {
         getAvailableSensors();
-        if (hasGyroscope) {
-
-        } else if (hasAcc && hasMag) {
-
-        }
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        mAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mMag = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (hasGyroscope) {
+            mGyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        } else if (hasAcc && hasMag) {
+            mAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mMag = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        }
     }
 
     private void getAvailableSensors(){
@@ -255,10 +313,32 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         hasMag = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS);
     }
 
+    /**
+     *  http://en.wikipedia.org/wiki/Low-pass_filter#Algorithmic_implementation
+     *  http://developer.android.com/reference/android/hardware/SensorEvent.html#values
+     */
+    protected float[] lowPass( float[] input, float[] output ) {
+        if ( output == null ) return input;
+
+        for ( int i=0; i<input.length; i++ ) {
+            output[i] = output[i] + LOW_PASS_ALPHA * (input[i] - output[i]);
+        }
+        return output;
+    }
+
+    protected float[] highPass(float[] gravity, final float[] values) {
+        if (gravity == null) return values;
+        gravity[0] = HIGH_PASS_ALPHA * gravity[0] + (1 - HIGH_PASS_ALPHA) * values[0];
+        gravity[1] = HIGH_PASS_ALPHA * gravity[1] + (1 - HIGH_PASS_ALPHA) * values[1];
+        gravity[2] = HIGH_PASS_ALPHA * gravity[2] + (1 - HIGH_PASS_ALPHA) * values[2];
+        return gravity;
+    }
+
+
     // =============================================================================================
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         mContext = this;
         device[0] = BaseActivity.getDeviceMetric()[0];
@@ -317,25 +397,32 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            mGravity = event.values;
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-            mGeomagnetic = event.values;
-        if (mGravity != null && mGeomagnetic != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-            if (success) {
-                float orientation[] = new float[3];
-                SensorManager.getOrientation(R, orientation);
-                azimut = orientation[0]; // orientation contains: azimut, pitch and roll
-                if (previousAzu == null) {
-                    previousAzu = azimut;
-                } else {
-                    updateDataPos(azimut);
-                    previousAzu = azimut;
-                }
+        if (hasGyroscope && event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            updateDataPos((float)Math.asin(-event.values[1])*2);
+        } else if (hasAcc && hasMag) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                mGravity = highPass(mGravity, event.values.clone());
+            }
+            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                mGeomagnetic = highPass(mGeomagnetic,  event.values.clone());
+            }
+            if (mGravity != null && mGeomagnetic != null) {
+                float R[] = new float[9];
+                float I[] = new float[9];
+                boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+                if (success) {
+                    float orientation[] = new float[3];
+                    SensorManager.getOrientation(R, orientation);
+                    azimut = orientation[0]; // orientation contains: azimut, pitch and roll
+                    if (previousAzu == null) {
+                        previousAzu = azimut;
+                    } else {
+                        final float diff = azimut - previousAzu;
+                        updateDataPos(azimut);
+                        previousAzu = azimut;
+                    }
 
+                }
             }
         }
     }
@@ -371,6 +458,27 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         return optimalSize;
     }
 
+    @Override
+    public void onLocationChanged(Location loc) {
+        this.location = loc;
+        updatePosition();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
     private class aDataPoint {
         public int x;
         public double dist;
@@ -383,6 +491,31 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
             this.id = did;
             this.name = dname;
             this.thumbnail = thumb;
+        }
+    }
+
+    private class MapFilterLoader extends AsyncTask<Void, List<aDataPoint>, List<aDataPoint>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            ShowLoadingDialog();
+        }
+
+        @Override
+        protected List doInBackground(Void... params) {
+            return processTrailsData(getTrails());
+        }
+
+        @Override
+        protected void onPostExecute(List<aDataPoint> result) {
+            super.onPostExecute(result);
+            if (result != null) {
+                drawInitialData();
+            }
+            if (LoadingDialog != null && LoadingDialog.isShowing()) {
+                LoadingDialog.dismiss();
+            }
         }
     }
 }

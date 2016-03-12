@@ -299,7 +299,7 @@ public class Photos extends BaseActivity implements UpdateListener, AdapterView.
             photoPopup.show();
             if (showBack) {
                 try {
-                    new CountDownTimer(300, 1000) {
+                    new CountDownTimer(200, 1000) {
                         public void onTick(long l) {
                         }
 
