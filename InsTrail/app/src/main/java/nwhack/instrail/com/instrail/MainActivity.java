@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import Utils.GPSTracker;
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.Trail;
 import nwhack.instrail.com.instrail.Model.User;
@@ -62,6 +63,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         setContentView(R.layout.activity_main);
         context = this;
         setCurrentDataListener(this);
+        BaseActivity.gps = new GPSTracker(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         accountButton = (LinearLayout) this.findViewById(R.id.main_menu_account);
         photoButton = (LinearLayout) this.findViewById(R.id.main_menu_photo);
@@ -77,6 +79,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
         settingsButton.setOnClickListener(this);
+        BaseActivity.getDeviceMetric();
     }
 
     @Override
@@ -201,7 +204,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             startActivity(intent);
         } else if (view.equals(settingsButton)) {
             // TODO
-            Intent intent = new Intent(MainActivity.this, DevTest.class);
+            Intent intent = new Intent(MainActivity.this, VisualizeActivity.class);
             startActivity(intent);
         }
     }

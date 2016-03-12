@@ -11,6 +11,7 @@
         android:layout_height="match_parent"/>
 
     <RelativeLayout
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -79,6 +80,11 @@
             android:src="@drawable/hiking2"/>
 
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/dev_free_draw"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:layout_width="match_parent"

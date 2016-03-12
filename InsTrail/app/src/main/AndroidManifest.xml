@@ -7,13 +7,13 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality. 
     -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android:hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -77,7 +77,10 @@
                 android:resource="@xml/trail_widget_info" />
         </receiver>
 
-        <activity android:name=".DevTest"
+        <activity
+            android:name=".DevTest"
+            android:screenOrientation="portrait" />
+        <activity android:name=".VisualizeActivity"
             android:screenOrientation="portrait" />
     </application>
 
