@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import Utils.GPSTracker;
 import nwhack.instrail.com.instrail.Interface.DataListener;
 import nwhack.instrail.com.instrail.Model.Trail;
 import nwhack.instrail.com.instrail.Model.User;
@@ -64,7 +63,6 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         setContentView(R.layout.activity_main);
         context = this;
         setCurrentDataListener(this);
-        BaseActivity.gps = new GPSTracker(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         accountButton = (LinearLayout) this.findViewById(R.id.main_menu_account);
         photoButton = (LinearLayout) this.findViewById(R.id.main_menu_photo);

@@ -55,8 +55,8 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
 
     //time smoothing constant for low-pass filter 0 ≤ alpha ≤ 1 ; a smaller value basically means more smoothing
     // http://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
-    static final float LOW_PASS_ALPHA = 0.25f;
-    static final float HIGH_PASS_ALPHA = 0.8f;
+    private final float LOW_PASS_ALPHA = 0.25f;
+    private final float HIGH_PASS_ALPHA = 0.8f;
     private final int MAX_SHOW = 15;
     private final int MAX_DIST = 250; //km
     private double currentLAT;
@@ -67,8 +67,8 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private final float PI = 3.1415926f;
     private boolean isTracking;
     private int[] device = {0, 0};
-    float[] mGravity;
-    float[] mGeomagnetic;
+    private float[] mGravity;
+    private float[] mGeomagnetic;
     private float screenVisCen = 0;
     private Float azimut;
     private Float previousAzu = null;
