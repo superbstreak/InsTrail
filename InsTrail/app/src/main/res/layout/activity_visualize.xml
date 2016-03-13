@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     tools:context="nwhack.instrail.com.instrail.VisualizeActivity">
 
+
+
     <SurfaceView
         android:id="@+id/visualize_surface_camera"
         android:layout_width="match_parent"
@@ -12,12 +14,87 @@
 
     <RelativeLayout
         android:id="@+id/visualize_free_draw"
+        android:background="#00000000"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:padding="5dp"
+        android:background="#50000000"
+        android:id="@+id/compass_indicator_view"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text=" N"
+            android:id="@+id/compass_N"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FF4C4C"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text=" S"
+            android:id="@+id/compass_S"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="E"
+            android:id="@+id/compass_E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="W"
+            android:id="@+id/compass_W"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#ffffff"/>
+
+        <ImageView
+            android:id="@+id/compass_image"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="fitCenter"
+            android:layout_below="@+id/compass_N"
+            android:layout_toEndOf="@+id/compass_W"
+            android:layout_toStartOf="@+id/compass_E"
+            android:layout_above="@+id/compass_S"
+            android:adjustViewBounds="true"
+            android:padding="10dp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/compass"/>
+
+
 
     </RelativeLayout>
 

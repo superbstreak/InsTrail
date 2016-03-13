@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import Utils.GPSTracker;
 import nwhack.instrail.com.instrail.Controller.BaseController;
 import nwhack.instrail.com.instrail.Controller.InstagramController;
 import nwhack.instrail.com.instrail.Controller.VolleyController;
@@ -57,7 +56,6 @@ public class BaseActivity extends FragmentActivity {
     public static List<Trail> trails = new ArrayList<>();
     public static HashMap<String, Integer> trailMapper = new HashMap<>();
     public static InstagramController scrapper;
-    public static GPSTracker gps;
     public static int[] metric;
 
     @Override

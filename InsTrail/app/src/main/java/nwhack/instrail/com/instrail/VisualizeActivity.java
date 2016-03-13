@@ -1,6 +1,7 @@
 package nwhack.instrail.com.instrail;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -43,8 +45,8 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private RelativeLayout freeDraw;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
+    private ImageView mCompassIndicator;
     private Camera acam = null;
-    private boolean inPreview = false;
 
     private SensorManager mSensorManager;
     private Sensor mGyroSensor;
@@ -59,12 +61,16 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private final float HIGH_PASS_ALPHA = 0.8f;
     private final int MAX_SHOW = 15;
     private final int MAX_DIST = 250; //km
+    private final float PI = 3.1415926f;
+    private final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // The minimum distance to change updates in meters
+    private final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // The minimum time between updates in milliseconds
+
+    private boolean inPreview = false;
     private double currentLAT;
     private double currentLON;
     private boolean hasGyroscope = false;
     private boolean hasAcc = false;
     private boolean hasMag = false;
-    private final float PI = 3.1415926f;
     private boolean isTracking;
     private int[] device = {0, 0};
     private float[] mGravity;
@@ -75,8 +81,6 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private List<aDataPoint> data = new ArrayList<>();
     private List<View> texts = new ArrayList<>();
     private double maxDist = 0;
-    private final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // The minimum distance to change updates in meters
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // The minimum time between updates in milliseconds
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,8 +89,10 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         setUpLocationManager();
         freeDraw = (RelativeLayout) this.findViewById(R.id.visualize_free_draw);
         mSurfaceView = (SurfaceView) findViewById(R.id.visualize_surface_camera);
+        mCompassIndicator = (ImageView) findViewById(R.id.compass_image);
         mContext = this;
         isTracking = false;
+        updateCompassIndicator(0);
         updatePosition();
         setUpSensor();
         registerSensor();
@@ -98,6 +104,18 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     }
 
     // ============================================================================================
+
+    private void updateCompassIndicator(final float azu) {
+        if (mCompassIndicator != null) {
+            if (azu > 0) {
+                final float deg = (int)(azu*360/PI);
+                mCompassIndicator.animate().rotation(deg).setInterpolator(new LinearInterpolator()).setDuration(0);
+            } else {
+                final float deg = 360 - (azu*-360/PI);
+                mCompassIndicator.animate().rotation(deg).setInterpolator(new LinearInterpolator()).setDuration(0);
+            }
+        }
+    }
 
     private void setUpLocationManager() {
         try {
@@ -133,11 +151,11 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
             }
 
         } catch (Exception e) {
-
+            Log.d("VIS", "LOCATION ISSUE "+e);
         }
     }
 
-    private List processTrailsData(List<Trail> trr) {
+    private List<aDataPoint> processTrailsData(List<Trail> trr) {
         data = new ArrayList<>();
         if (trr != null) {
             int size = trr.size();
@@ -181,9 +199,9 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                     //ignore
                 } else if (maxShow == 0){
                     break;
-                }
-                else {
+                } else {
                     maxShow -= 1;
+                    @SuppressLint("InflateParams")
                     View view = getLayoutInflater().inflate(R.layout.visualize_location, null);
                     final ImageView valueTV = (ImageView) view.findViewById(R.id.vis_loc_img);
                     final TextView title = (TextView) view.findViewById(R.id.vis_loc_txtTitle);
@@ -215,12 +233,12 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                                 intent.putExtra(Constant.TRAIL_POSITION_TAG, (int)v.getTag());
                                 startActivity(intent);
                             } catch (Exception e) {
-
+                                Log.d("VIS", "FAILED TO TRANSIT "+e);
                             }
                         }
                     });
                     texts.add(view);
-                    ((RelativeLayout) freeDraw).addView(view);
+                    freeDraw.addView(view);
                 }
             }
         }
@@ -247,9 +265,11 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                 final float currentTVX = currentView.getX();
                 final int tag = (int)currentView.getTag();
                 if (hasGyroscope) {
+                    updateCompassIndicator(azu);
                     final float newTVX = data.get(tag).x - 2*movement;
                     currentView.setX(newTVX);
                 } else if (hasAcc && hasMag){
+                    updateCompassIndicator(azu);
                     final float newTVX = data.get(tag).x - movement;
                     final float diff = Math.abs(currentTVX - newTVX);
                     if (diff > device[0]/20) {
@@ -317,8 +337,11 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
      *  http://en.wikipedia.org/wiki/Low-pass_filter#Algorithmic_implementation
      *  http://developer.android.com/reference/android/hardware/SensorEvent.html#values
      */
+    @SuppressWarnings("unused")
     protected float[] lowPass( float[] input, float[] output ) {
-        if ( output == null ) return input;
+        if ( output == null ) {
+            return input;
+        }
 
         for ( int i=0; i<input.length; i++ ) {
             output[i] = output[i] + LOW_PASS_ALPHA * (input[i] - output[i]);
@@ -417,7 +440,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                     if (previousAzu == null) {
                         previousAzu = azimut;
                     } else {
-                        final float diff = azimut - previousAzu;
+//                        final float diff = azimut - previousAzu;
                         updateDataPos(azimut);
                         previousAzu = azimut;
                     }
@@ -503,7 +526,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         }
 
         @Override
-        protected List doInBackground(Void... params) {
+        protected List<aDataPoint> doInBackground(Void... params) {
             return processTrailsData(getTrails());
         }
 

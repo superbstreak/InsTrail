@@ -15,6 +15,7 @@
         android:id="@+id/vis_loc_img"/>
 
     <LinearLayout
+        android:paddingLeft="5dp"
         android:layout_width="150dp"
         android:layout_height="match_parent"
         android:orientation="vertical">
