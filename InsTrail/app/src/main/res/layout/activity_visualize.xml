@@ -27,8 +27,9 @@
     <RelativeLayout
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_margin="5dp"
         android:padding="5dp"
-        android:background="#50000000"
+        android:background="@drawable/compass_bg"
         android:id="@+id/compass_indicator_view"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
