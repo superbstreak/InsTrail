@@ -62,8 +62,8 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private final int MAX_SHOW = 15;
     private final int MAX_DIST = 250; //km
     private final float PI = 3.1415926f;
-    private final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // The minimum distance to change updates in meters
-    private final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // The minimum time between updates in milliseconds
+    private final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 800; // The minimum distance to change updates in meters
+    private final long MIN_TIME_BW_UPDATES = 1000 * 60 * 5; // The minimum time between updates in milliseconds
 
     private boolean inPreview = false;
     private double currentLAT;
@@ -108,10 +108,10 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private void updateCompassIndicator(final float azu) {
         if (mCompassIndicator != null) {
             if (azu > 0) {
-                final float deg = (int)(azu*360/PI);
+                final float deg = (int) (azu * 360 / PI);
                 mCompassIndicator.animate().rotation(deg).setInterpolator(new LinearInterpolator()).setDuration(0);
             } else {
-                final float deg = 360 - (azu*-360/PI);
+                final float deg = 360 - (azu * -360 / PI);
                 mCompassIndicator.animate().rotation(deg).setInterpolator(new LinearInterpolator()).setDuration(0);
             }
         }
@@ -151,7 +151,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
             }
 
         } catch (Exception e) {
-            Log.d("VIS", "LOCATION ISSUE "+e);
+            Log.d("VIS", "LOCATION ISSUE " + e);
         }
     }
 
@@ -159,16 +159,16 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         data = new ArrayList<>();
         if (trr != null) {
             int size = trr.size();
-            for (int i =0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 Trail tr = trr.get(i);
                 final String name = tr.getName();
                 final String thumb = tr.getThumbnail();
                 final double lat = tr.getLat();
                 final double lon = tr.getLon();
                 final aDataPoint pt = new aDataPoint(calculateDefaultOffset(
-                        currentLAT, currentLON, lat,lon),
-                        calculateDistance(currentLAT,currentLON,lat,lon),
-                        i,name, thumb);
+                        currentLAT, currentLON, lat, lon),
+                        calculateDistance(currentLAT, currentLON, lat, lon),
+                        i, name, thumb);
                 data.add(pt);
             }
         }
@@ -183,21 +183,22 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
             // need to be able to update user location whne changed
             currentLON = location.getLongitude();
             currentLAT = location.getLatitude();
-            Log.d("VIS", "LAT: "+currentLAT+" LONG: "+currentLON);
-        } catch (Exception e){}
+            Log.d("VIS", "LAT: " + currentLAT + " LONG: " + currentLON);
+        } catch (Exception e) {
+        }
     }
 
     private void drawInitialData() {
-        if (data != null && freeDraw != null){
+        if (data != null && freeDraw != null) {
             texts = new ArrayList<>();
             int size = data.size();
             int maxShow = Math.min(size, MAX_SHOW);
-            int deviceHeightHalf = device[1]/2;
-            for (int i = 0 ; i < size; i ++) {
+            int deviceHeightHalf = device[1] / 2;
+            for (int i = 0; i < size; i++) {
                 aDataPoint point = data.get(i);
                 if (point.dist > MAX_DIST) {
                     //ignore
-                } else if (maxShow == 0){
+                } else if (maxShow == 0) {
                     break;
                 } else {
                     maxShow -= 1;
@@ -206,10 +207,10 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                     final ImageView valueTV = (ImageView) view.findViewById(R.id.vis_loc_img);
                     final TextView title = (TextView) view.findViewById(R.id.vis_loc_txtTitle);
                     final TextView dists = (TextView) view.findViewById(R.id.vis_loc_txtDistance);
-                    title.setText(point.name+"");
+                    title.setText(point.name + "");
                     dists.setText((int) point.dist + " km");
                     view.setX(point.x);
-                    view.setY((int)(deviceHeightHalf*(1.05- (point.dist/maxDist))));
+                    view.setY((int) (deviceHeightHalf * (1.05 - (point.dist / maxDist))));
                     view.setTag(i);
                     ImageRequest request = new ImageRequest(point.thumbnail,
                             new Response.Listener<Bitmap>() {
@@ -230,10 +231,10 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
                             try {
                                 Intent intent = new Intent(mContext, Photos.class);
                                 intent.putExtra(Constant.PHOTO_INTENT_TAG, Constant.PHOTO_TAG_TRAIL);
-                                intent.putExtra(Constant.TRAIL_POSITION_TAG, (int)v.getTag());
+                                intent.putExtra(Constant.TRAIL_POSITION_TAG, (int) v.getTag());
                                 startActivity(intent);
                             } catch (Exception e) {
-                                Log.d("VIS", "FAILED TO TRANSIT "+e);
+                                Log.d("VIS", "FAILED TO TRANSIT " + e);
                             }
                         }
                     });
@@ -247,8 +248,8 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     private double calculateDistance(final double lat1, final double lon1, final double lat2, final double lon2) {
         double dlon = lon2 - lon1;
         double dlat = lat2 - lat1;
-        double a = Math.pow(Math.pow(Math.sin(dlat/2),2) + Math.cos(lat1) * Math.cos(lat2) * (Math.sin(dlon/2)),2);
-        double c = 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+        double a = Math.pow(Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * (Math.sin(dlon / 2)), 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double d = 6371 * c;
         if (d < MAX_DIST && maxDist < d) {
             maxDist = d;
@@ -257,22 +258,22 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
     }
 
     private void updateDataPos(final float azu) {
-        if (data != null && texts != null){
-            final float movement = azu*device[0];
+        if (data != null && texts != null) {
+            final float movement = azu * device[0];
             int size = texts.size();
             for (int i = 0; i < size; i++) {
                 final View currentView = texts.get(i);
                 final float currentTVX = currentView.getX();
-                final int tag = (int)currentView.getTag();
+                final int tag = (int) currentView.getTag();
                 if (hasGyroscope) {
                     updateCompassIndicator(azu);
-                    final float newTVX = data.get(tag).x - 2*movement;
+                    final float newTVX = data.get(tag).x - 2 * movement;
                     currentView.setX(newTVX);
-                } else if (hasAcc && hasMag){
+                } else if (hasAcc && hasMag) {
                     updateCompassIndicator(azu);
                     final float newTVX = data.get(tag).x - movement;
                     final float diff = Math.abs(currentTVX - newTVX);
-                    if (diff > device[0]/20) {
+                    if (diff > device[0] / 20) {
                         currentView.setX(newTVX);
                     }
                 }
@@ -285,10 +286,10 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         final double deltaLon = lon - currentlon;
         final double sinDeltaLon = Math.sin(deltaLon);
         final double cosLat = Math.cos(lat);
-        final double cosLat1sinLat2 = Math.cos(currentlat)*Math.sin(lat);
-        final double sinLat1cosLat2cosDeltaLon = Math.sin(currentlat)*Math.cos(lat)*Math.cos(deltaLon);
-        final double theta = Math.atan2(sinDeltaLon*cosLat, cosLat1sinLat2 - sinLat1cosLat2cosDeltaLon);
-        return (int)(screenVisCen + theta*device[0]);
+        final double cosLat1sinLat2 = Math.cos(currentlat) * Math.sin(lat);
+        final double sinLat1cosLat2cosDeltaLon = Math.sin(currentlat) * Math.cos(lat) * Math.cos(deltaLon);
+        final double theta = Math.atan2(sinDeltaLon * cosLat, cosLat1sinLat2 - sinLat1cosLat2cosDeltaLon);
+        return (int) (screenVisCen + theta * device[0]);
     }
 
     private void unregisterSensor() {
@@ -326,7 +327,7 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         }
     }
 
-    private void getAvailableSensors(){
+    private void getAvailableSensors() {
         PackageManager packageManager = getPackageManager();
         hasGyroscope = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_GYROSCOPE);
         hasAcc = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_ACCELEROMETER);
@@ -338,12 +339,12 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
      *  http://developer.android.com/reference/android/hardware/SensorEvent.html#values
      */
     @SuppressWarnings("unused")
-    protected float[] lowPass( float[] input, float[] output ) {
-        if ( output == null ) {
+    protected float[] lowPass(float[] input, float[] output) {
+        if (output == null) {
             return input;
         }
 
-        for ( int i=0; i<input.length; i++ ) {
+        for (int i = 0; i < input.length; i++) {
             output[i] = output[i] + LOW_PASS_ALPHA * (input[i] - output[i]);
         }
         return output;
@@ -357,6 +358,14 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         return gravity;
     }
 
+    private void unregisterLocationUpdate() {
+        if (lm != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            lm.removeUpdates(this);
+        }
+    }
 
     // =============================================================================================
 
@@ -368,12 +377,14 @@ public class VisualizeActivity extends BaseActivity implements SensorEventListen
         device[1] = BaseActivity.getDeviceMetric()[1];
         freeDraw.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         registerSensor();
+        setUpLocationManager();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         unregisterSensor();
+        unregisterLocationUpdate();
     }
 
     @Override
