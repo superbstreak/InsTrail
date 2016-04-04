@@ -51,6 +51,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
     private LinearLayout trailsButton;
     private LinearLayout settingsButton;
     private LinearLayout mainMenu;
+    private int retryLimit = 100;
 
     public static Activity getContext() {
         return context;
@@ -77,6 +78,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         filterButton.setOnClickListener(this);
         trailsButton.setOnClickListener(this);
         settingsButton.setOnClickListener(this);
+        BaseActivity.getDeviceMetric();
     }
 
     @Override
@@ -201,6 +203,8 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
             startActivity(intent);
         } else if (view.equals(settingsButton)) {
             // TODO
+            Intent intent = new Intent(MainActivity.this, VisualizeActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -240,11 +244,13 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback, Vi
         if (LoadingDialog != null && LoadingDialog.isShowing()) {
             LoadingDialog.dismiss();
         }
-        if (currentCount <= 2) {    // failed on first start, retry
+        if (currentCount <= 2 && retryLimit > 0) {    // failed on first start, retry
+            retryLimit -= 1;
             isFirstLoad = true;
             scrapeInstagram();
-        } else {
+        } else if (retryLimit > 0) {
             scrapeNextURL();
+            retryLimit = 100;
         }
     }
 

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="nwhack.instrail.com.instrail.DevTest">
+
+    <SurfaceView
+        android:id="@+id/dev_surface_camera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <RelativeLayout
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/dev_img1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_has_location"/>
+
+        <ImageView
+            android:id="@+id/dev_img2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_info"/>
+
+        <ImageView
+            android:id="@+id/dev_img3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/common_google_signin_btn_icon_dark_pressed"/>
+
+        <ImageView
+            android:id="@+id/dev_img4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo"/>
+
+        <ImageView
+            android:id="@+id/dev_img5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/instagram_logo"/>
+
+        <ImageView
+            android:id="@+id/dev_img6"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/common_ic_googleplayservices"/>
+
+        <ImageView
+            android:id="@+id/dev_img7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/common_plus_signin_btn_icon_dark_normal"/>
+
+        <ImageView
+            android:id="@+id/dev_img8"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/hiking2"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/dev_free_draw"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_0"/>
+
+    <TextView
+        android:layout_below="@id/gyro_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_1"/>
+
+    <TextView
+        android:layout_below="@id/gyro_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gyro_2"/>
+
+    <TextView
+        android:layout_below="@id/gyro_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_0"/>
+
+    <TextView
+        android:layout_below="@id/acc_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_1"/>
+
+    <TextView
+        android:layout_below="@id/acc_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/acc_2"/>
+
+    <TextView
+        android:layout_below="@id/acc_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_0"/>
+
+    <TextView
+        android:layout_below="@id/mag_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_1"/>
+
+    <TextView
+        android:layout_below="@id/mag_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mag_2"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_camera"
+            android:id="@+id/dev_cam"
+            android:backgroundTint="@color/wallet_dim_foreground_inverse_holo_dark"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:id="@+id/dev_start"
+            android:src="@drawable/ic_media_play"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/wallet_highlighted_text_holo_light"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:src="@drawable/ic_media_pause"
+            android:id="@+id/dev_pause"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+</RelativeLayout>

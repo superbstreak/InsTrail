@@ -1,5 +1,6 @@
 package nwhack.instrail.com.instrail;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Point;
@@ -33,6 +34,7 @@ import nwhack.instrail.com.instrail.Model.User;
  */
 public class BaseActivity extends FragmentActivity {
 
+    public static Activity baseContext;
     public static DataListener currentDataListener;
     public static UpdateListener currentUpdateListener;
     public Context appContext;
@@ -54,17 +56,20 @@ public class BaseActivity extends FragmentActivity {
     public static List<Trail> trails = new ArrayList<>();
     public static HashMap<String, Integer> trailMapper = new HashMap<>();
     public static InstagramController scrapper;
+    public static int[] metric;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initializeImageLoader();
+        baseContext = this;
         mInstagram = new Instagram(this, Constant.CLIENT_ID, Constant.CLIENT_SECRET, Constant.REDIRECT_URI);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        baseContext = this;
         appContext = this.getApplicationContext();
         BaseController.appContext = getApplicationContext();
         getVolleyController(); // place here to make sure it never dies
@@ -164,5 +169,18 @@ public class BaseActivity extends FragmentActivity {
                 getScrapper().getTagRecentMedia(nextActionURL, true);
             }
         }
+    }
+
+    public static int[] getDeviceMetric() {
+        if (metric == null && baseContext != null) {
+            Display display = baseContext.getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            metric = new int[2];
+            metric[0] = size.x;
+            metric[1] = size.y;
+        }
+
+        return metric;
     }
 }
